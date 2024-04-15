@@ -4,17 +4,25 @@
 #include <Arduino.h>
 #include <TFT_eSPI.h> // Hardware-specific library
 #include <vector> // Inkludieren der Header-Datei für Vektoren
-#include "images/Pillar.h"
+#include <random>
+#include "images/Pillar.hpp"
+
 int step = 2;
-Pillar::Pillar(int _xPos, int _yPos, int _gap) :
+
+std::random_device rd;
+std::mt19937 gen(rd());
+std::uniform_int_distribution<> randomGap(40, 70);
+std::uniform_int_distribution<> randomHight(80, 240);
+
+Pillar::Pillar(int _xPos) :
     UpperPillarSprite(&DisplayManager::tft),
     LowerPillarSprite(&DisplayManager::tft),
-    xPos(_xPos),
-    yPos(_yPos),
-    gap(_gap)
+    xPos(_xPos)
 {
     xImageSize = 50;
     yImageSize = 200;
+    yPos = randomHight(gen);
+    gap = randomGap(gen);
 }
 void Pillar::updatePillar()
 {
@@ -26,6 +34,7 @@ void Pillar::updatePillar()
     DisplayManager::tft.fillRect(xPos, yPos + gap, xImageSize, 270 - yPos - gap, DisplayManager::tft.color565(113,191,46));
     DisplayManager::tft.fillRect(xPos + xImageSize, yPos + gap, xImageSize / 20, 270 - yPos - gap, DisplayManager::tft.color565(113,197,207));
     //DisplayManager::tft.drawRect(xPos, 0, 50, 200, TFT_GREEN);
+    
 }
 
 std::vector<unsigned short> Pillar::flipImage180(const unsigned short* imageData, int width, int height) {

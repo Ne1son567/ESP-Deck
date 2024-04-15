@@ -7,7 +7,7 @@
 #include "Pillar.hpp"
 #include "DisplayManager.hpp"
 #include "DynamicArray.hpp"
-#include "images/Floor.h"
+#include "images/Floor.hpp"
 #include "Bird.hpp"
 TaskHandle_t core0TaskHandle;
 TFT_eSprite FloorSprite = TFT_eSprite(&DisplayManager::tft);
@@ -20,10 +20,7 @@ int spawn = 0;
 int spawnSpeed = 200;
 DynamicArray pillars;
 Bird myBird;
-std::random_device rd;
-std::mt19937 gen(rd());
-std::uniform_int_distribution<> randomGap(30, 60);
-std::uniform_int_distribution<> randomHight(80, 240);
+
     
 unsigned long previousMillis = 0;
 const unsigned long interval = 15; 
@@ -81,7 +78,7 @@ void createPillar() {
     static int counter = 0;
     counter++;
     if (counter % spawnSpeed == 0) {
-        pillars.add(Pillar(480, randomHight(gen), randomGap(gen))); 
+        pillars.add(Pillar(480)); 
         spawnSpeed --;
     }
 }

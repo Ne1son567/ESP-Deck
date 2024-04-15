@@ -6,6 +6,7 @@
 class Bird {
 private:
     TFT_eSprite FlappyBirdSprite;
+    TFT_eSprite BlueFlappyBirdSprite;
     int yPos;
     int xPos;
     int xSize;

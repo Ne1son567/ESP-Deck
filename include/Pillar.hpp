@@ -12,11 +12,14 @@ private:
     int gap;
     int xImageSize;
     int yImageSize;
+    
     TFT_eSprite UpperPillarSprite;
     TFT_eSprite LowerPillarSprite;
+
+    
 public:
     // Konstruktor mit Parameter
-    Pillar(int _xPos, int _yPos, int _gap);
+    Pillar(int _xPos);
     void updatePillar();
     int getXPos();
     // Funktion zum Flippen eines Bildes

@@ -5,17 +5,23 @@
 #include "images/FlappyBird.hpp"
 #include "DisplayManager.hpp"
 #include "Bird.hpp"
+#include "images/BlueFlappyBird.hpp"
 
 Bird::Bird() : 
     FlappyBirdSprite(&DisplayManager::tft), 
-    yPos (160),
-    xPos (40),
+    BlueFlappyBirdSprite(&DisplayManager::tft),
+    yPos(160),
+    xPos(40),
     xSize(40),
-    ySize (37)
+    ySize(38)
 {
     FlappyBirdSprite.createSprite(xSize, ySize);
     FlappyBirdSprite.setSwapBytes(true);
     FlappyBirdSprite.pushImage(0, 0, xSize, ySize, FlappyBird);
+
+    BlueFlappyBirdSprite.createSprite(xSize, ySize);
+    BlueFlappyBirdSprite.setSwapBytes(true);
+    BlueFlappyBirdSprite.pushImage(0, 0, xSize, ySize, BlueFlappyBird);
 }
 void Bird::update()
 {
@@ -23,13 +29,15 @@ void Bird::update()
     {
         gameOver();
     }
-    FlappyBirdSprite.pushSprite(xPos, yPos /*, TFT_BLACK*/);
+    
     if (upbutton) {
-        yPos -= 4;
+        yPos -= 2;
     } else {
         upbutton = false;
-        yPos += 3;
+        yPos += 1;
     }
+    FlappyBirdSprite.pushSprite(xPos, yPos /*, TFT_BLACK*/);
+    
 }
 void Bird::setYPos(int _yPos)
 {
