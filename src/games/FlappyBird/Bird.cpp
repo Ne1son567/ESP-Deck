@@ -1,10 +1,10 @@
 
 #include <Arduino.h>
 #include <TFT_eSPI.h> // Hardware-specific library
-#include "main.hpp"
+#include "games/FlappyBird/FlappyBird.hpp"
 #include "images/FlappyBird.hpp"
-#include "DisplayManager.hpp"
-#include "Bird.hpp"
+#include "display/DisplayManager.hpp"
+#include "games/FlappyBird/Bird.hpp"
 #include "images/BlueFlappyBird.hpp"
 
 Bird::Bird() : 
@@ -25,21 +25,20 @@ Bird::Bird() :
 }
 void Bird::update()
 {
-    if(yPos >= 270 - ySize )
-    {
-        gameOver();
-    }
     
-    if (upbutton) {
-        yPos -= 2;
-    } else {
-        upbutton = false;
-        yPos += 1;
-    }
+    
     FlappyBirdSprite.pushSprite(xPos, yPos /*, TFT_BLACK*/);
     
 }
 void Bird::setYPos(int _yPos)
 {
-    this->yPos = _yPos;
+    yPos = _yPos;
+}
+int Bird::getYPos()
+{
+    return yPos;
+}
+int Bird::getYSize()
+{
+    return ySize;
 }

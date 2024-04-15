@@ -1,5 +1,5 @@
-#include "Pillar.hpp"
-#include "DisplayManager.hpp"
+#include "games/FlappyBird/Pillar.hpp"
+#include "display/DisplayManager.hpp"
 #include <SPI.h>
 #include <Arduino.h>
 #include <TFT_eSPI.h> // Hardware-specific library

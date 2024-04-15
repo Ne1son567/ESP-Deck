@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "DisplayManager.hpp"
+#include "display/DisplayManager.hpp"
 
 TFT_eSPI DisplayManager::tft = TFT_eSPI();
 void DisplayManager::initialize() 

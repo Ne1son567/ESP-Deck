@@ -1,40 +1,26 @@
+#include "Main.hpp"
 #include <Arduino.h>
-#include <SPI.h>
-#include <TFT_eSPI.h> // Hardware-specific library
-#include <vector> // Inkludieren der Header-Datei für Vektoren
-#include <random>
-#include "main.hpp"
-#include "Pillar.hpp"
-#include "DisplayManager.hpp"
-#include "DynamicArray.hpp"
-#include "images/Floor.hpp"
-#include "Bird.hpp"
-TaskHandle_t core0TaskHandle;
-TFT_eSprite FloorSprite = TFT_eSprite(&DisplayManager::tft);
+#include <memory>
+#include "games/Game.hpp"
+#include "games/FlappyBird/FlappyBird.hpp"
+#include "display/DisplayManager.hpp"
+#include "TFT_eSPI.h"
 
+#define right 9
 #define up 10
-//#define RGB_LED 48
-bool upbutton = false;
-bool gameover = false;
-int spawn = 0;
-int spawnSpeed = 200;
-DynamicArray pillars;
-Bird myBird;
+#define left 11
+#define down 12
+#define action 13
+#define menu 43
 
-    
-unsigned long previousMillis = 0;
-const unsigned long interval = 15; 
-void setup()
+TaskHandle_t core0TaskHandle;
+std::unique_ptr<Game> currentGame;
+bool menuButtonPressed = true;
+
+void setup() 
 {
-    DisplayManager::initialize();
-    DisplayManager::tft.fillScreen(DisplayManager::tft.color565(113,197,207));
-    pinMode(up, INPUT_PULLUP);
-    
-    FloorSprite.createSprite(480, 50);
-    FloorSprite.setSwapBytes(true);
-    FloorSprite.pushImage(0, 0, 480, 156, Floor);
-    FloorSprite.pushSprite(0,270/*, TFT_BLACK*/);
-    
+    Serial.begin(250000);
+
     xTaskCreatePinnedToCore(
         inputLoop,
         "Input",
@@ -44,83 +30,42 @@ void setup()
         &core0TaskHandle,
         0
     );
-}
-void loop() {
-    
-    unsigned long currentMillis = millis();
-    if (currentMillis - previousMillis >= interval) 
-    {
-        previousMillis = currentMillis; 
 
-        if (gameover == false) 
-        {
-            myBird.update();
-            
-            createPillar();
+    pinMode(right, INPUT_PULLUP);
+    pinMode(up, INPUT_PULLUP);
+    pinMode(left, INPUT_PULLUP);
+    pinMode(down, INPUT_PULLUP);
+    pinMode(action, INPUT_PULLUP);
+    pinMode(menu, INPUT_PULLUP);
 
-            Pillar** array = pillars.getArray();
-            for (int i = 0; i < pillars.getSize(); i++) {
-                array[i]->updatePillar(); 
-            }
-            
-            deletePillar();
-            
-        } else {
-            DisplayManager::tft.drawString("-GAME OVER-", 170, 160, 4);
-            if(upbutton == true && gameover == true){
-                restard();
-            }
-            
-        }
-    }
+    DisplayManager::initialize();
+    currentGame = std::unique_ptr<FlappyBird>(new FlappyBird());
 }
-void createPillar() {
-    static int counter = 0;
-    counter++;
-    if (counter % spawnSpeed == 0) {
-        pillars.add(Pillar(480)); 
-        spawnSpeed --;
-    }
-}
-void deletePillar()
+
+void loop()
 {
-    Pillar** array = pillars.getArray();
-    for (int i = 0; i < pillars.getSize(); i++) 
-    {
-        if(array[i]->getXPos() < -50)
-        {
-            pillars.remove(i);
-        }
-    }
-}
-void restard()
-{
-    delete[] pillars.getArray();
-    DisplayManager::tft.fillScreen(DisplayManager::tft.color565(113,197,207));
-    FloorSprite.pushSprite(0,270/*, TFT_BLACK*/);
-    myBird.setYPos(160);
-    gameover = false;
     
+    currentGame->update();
 }
-void gameOver()
-{
-    gameover = true;
-}
+
 void inputLoop(void * parameter)
 {
     for (;;) {
         
-        if (digitalRead(up) == LOW) {
-            upbutton = true;
-        }
-        else{
-            upbutton = false;
-        }
-    
-        delay(50);
+            if (digitalRead(right) == LOW) {
+                currentGame->input(0);
+            } else if (digitalRead(up) == LOW) {
+                currentGame->input(1);
+            } else if (digitalRead(left) == LOW) {
+                currentGame->input(2);
+            } else if (digitalRead(down) == LOW) {
+                currentGame->input(3);
+            } else if (digitalRead(action) == LOW) {
+                currentGame->input(4);
+            } else if (digitalRead(menu) == LOW) {
+                menuButtonPressed = true;
+            }
+        
+        
     }
-}
-bool getUpButton()
-{
-    return upbutton;
 }

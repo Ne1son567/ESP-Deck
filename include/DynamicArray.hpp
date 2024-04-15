@@ -1,7 +1,7 @@
 #ifndef DYNAMICARRAY_HPP
 #define DYNAMICARRAY_HPP
 
-#include "Pillar.hpp"
+#include "games/FlappyBird/Pillar.hpp"
 
 class DynamicArray {
 private:
