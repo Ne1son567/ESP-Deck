@@ -1,8 +1,11 @@
 #include <Arduino.h>
 #include <SPI.h>
-#include <TFT_eSPI.h> // Hardware-specific library
-#include <vector> // Inkludieren der Header-Datei für Vektoren
+#include <TFT_eSPI.h>
+#include <vector>
 #include <random>
+#include <string>
+#include <chrono>
+#include <thread>
 #include "games/FlappyBird/FlappyBird.hpp"
 #include "games/FlappyBird/Bird.hpp"
 #include "display/DisplayManager.hpp"
@@ -15,14 +18,13 @@ TFT_eSprite FloorSprite = TFT_eSprite(&DisplayManager::tft);
 //#define RGB_LED 48
 bool upbutton = false;
 bool gameover = false;
-int spawn = 0;
+int status = 0;
 int spawnSpeed = 200;
 DynamicArray pillars;
 Bird myBird;
+const int MIN_Y_POS = 270 - myBird.getYSize();
 
-    
-unsigned long previousMillis = 0;
-const unsigned long interval = 15; 
+ 
 FlappyBird::FlappyBird(){
     
     DisplayManager::tft.fillScreen(DisplayManager::tft.color565(113,197,207));
@@ -35,44 +37,40 @@ FlappyBird::FlappyBird(){
    
 }
 void FlappyBird::update() {
+    
+    static unsigned long lastUpdateTime = 0; 
+    unsigned long currentTime = millis(); 
+    unsigned long updateInterval = 20; 
 
-    if(upbutton == true)
-    {
-        yPos -= 2;
-    }
-    else{
-        
-        yPos += 1;
-    }
-    if(myBird.getYPos() >= 270 - myBird.getYSize() )
-    {
-        gameOver();
-    }
-    unsigned long currentMillis = millis();
-    if (currentMillis - previousMillis >= interval) 
-    {
-        previousMillis = currentMillis; 
+    if (currentTime - lastUpdateTime >= updateInterval) {
+        lastUpdateTime = currentTime; 
 
-        if (gameover == false) 
-        {
+        if(myBird.getYPos() >= MIN_Y_POS) {
+            gameOver();
+        }
+        if(upbutton == true) {
+            myBird.setYPos(myBird.getYPos() - 2);
+        } else {
+            myBird.setYPos(myBird.getYPos() + 2);
+        }
+        if (!gameover) {
             myBird.update();
-            
             createPillar();
-
-            Pillar** array = pillars.getArray();
-            for (int i = 0; i < pillars.getSize(); i++) {
-                array[i]->updatePillar(); 
-            }
-            
+            updatePillars();
             deletePillar();
-            
         } else {
             DisplayManager::tft.drawString("-GAME OVER-", 170, 160, 4);
-            if(upbutton == true && gameover == true){
-                restard();
+            if (upbutton && gameover) {
+                restartGame();
             }
-            
         }
+    }
+    
+}
+void FlappyBird::updatePillars() {
+    Pillar** array = pillars.getArray();
+    for (int i = 0; i < pillars.getSize(); i++) {
+        array[i]->updatePillar(); 
     }
 }
 void FlappyBird::createPillar() {
@@ -80,6 +78,7 @@ void FlappyBird::createPillar() {
     counter++;
     if (counter % spawnSpeed == 0) {
         pillars.add(Pillar(480)); 
+        
         spawnSpeed --;
     }
 }
@@ -94,14 +93,13 @@ void FlappyBird::deletePillar()
         }
     }
 }
-void FlappyBird::restard()
+void FlappyBird::restartGame()
 {
     delete[] pillars.getArray();
     DisplayManager::tft.fillScreen(DisplayManager::tft.color565(113,197,207));
     FloorSprite.pushSprite(0,270/*, TFT_BLACK*/);
     myBird.setYPos(160);
     gameover = false;
-    
 }
 void FlappyBird::gameOver()
 {
@@ -109,16 +107,13 @@ void FlappyBird::gameOver()
 }
 void FlappyBird::input(int key) 
 {
-    
-    if (key == 0) {
-        myBird.setYPos(myBird.getYPos() +1);
+    if (key == 1) {
+        upbutton = true;
     }
     else{
-        myBird.setYPos(myBird.getYPos() -1);
+        upbutton = false;
     }
-
     delay(50);
-    
 }
 bool getUpButton()
 {

@@ -18,4 +18,4 @@ public:
     int getSize() const;
 };
 
-#endif // DYNAMICARRAY_HPP
+#endif

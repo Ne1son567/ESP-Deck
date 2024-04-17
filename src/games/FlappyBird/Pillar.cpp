@@ -2,8 +2,8 @@
 #include "display/DisplayManager.hpp"
 #include <SPI.h>
 #include <Arduino.h>
-#include <TFT_eSPI.h> // Hardware-specific library
-#include <vector> // Inkludieren der Header-Datei für Vektoren
+#include <TFT_eSPI.h>
+#include <vector> 
 #include <random>
 #include "images/Pillar.hpp"
 

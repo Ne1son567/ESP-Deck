@@ -16,7 +16,7 @@
 TaskHandle_t core0TaskHandle;
 std::unique_ptr<Game> currentGame;
 bool menuButtonPressed = true;
-
+bool upButtonPressed = false;
 void setup() 
 {
     Serial.begin(250000);
@@ -44,7 +44,6 @@ void setup()
 
 void loop()
 {
-    
     currentGame->update();
 }
 
@@ -54,9 +53,16 @@ void inputLoop(void * parameter)
         
             if (digitalRead(right) == LOW) {
                 currentGame->input(0);
-            } else if (digitalRead(up) == LOW) {
+            } 
+            else if (digitalRead(up) == LOW) {
                 currentGame->input(1);
-            } else if (digitalRead(left) == LOW) {
+                upButtonPressed = true;
+            }
+            else if(upButtonPressed){
+                upButtonPressed = false;
+                currentGame->input(5);
+            }
+             else if (digitalRead(left) == LOW) {
                 currentGame->input(2);
             } else if (digitalRead(down) == LOW) {
                 currentGame->input(3);
@@ -65,7 +71,7 @@ void inputLoop(void * parameter)
             } else if (digitalRead(menu) == LOW) {
                 menuButtonPressed = true;
             }
-        
-        
+            
     }
+    
 }

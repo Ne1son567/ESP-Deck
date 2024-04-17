@@ -18,7 +18,7 @@ private:
 
     
 public:
-    // Konstruktor mit Parameter
+   
     Pillar(int _xPos);
     void updatePillar();
     int getXPos();
