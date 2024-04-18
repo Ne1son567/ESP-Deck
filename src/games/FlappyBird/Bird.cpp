@@ -27,6 +27,10 @@ void Bird::update()
 {
     FlappyBirdSprite.pushSprite(xPos, yPos /*, TFT_BLACK*/);
 }
+void Bird::jump()
+{
+    
+}
 void Bird::setYPos(int _yPos)
 {
     yPos = _yPos;

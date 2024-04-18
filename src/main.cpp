@@ -28,7 +28,7 @@ void setup()
         NULL,
         1,
         &core0TaskHandle,
-        0
+        1
     );
 
     pinMode(right, INPUT_PULLUP);
@@ -41,7 +41,6 @@ void setup()
     DisplayManager::initialize();
     currentGame = std::unique_ptr<FlappyBird>(new FlappyBird());
 }
-
 void loop()
 {
     currentGame->update();
@@ -50,28 +49,26 @@ void loop()
 void inputLoop(void * parameter)
 {
     for (;;) {
-        
-            if (digitalRead(right) == LOW) {
-                currentGame->input(0);
-            } 
-            else if (digitalRead(up) == LOW) {
-                currentGame->input(1);
-                upButtonPressed = true;
-            }
-            else if(upButtonPressed){
-                upButtonPressed = false;
-                currentGame->input(5);
-            }
-             else if (digitalRead(left) == LOW) {
-                currentGame->input(2);
-            } else if (digitalRead(down) == LOW) {
-                currentGame->input(3);
-            } else if (digitalRead(action) == LOW) {
-                currentGame->input(4);
-            } else if (digitalRead(menu) == LOW) {
-                menuButtonPressed = true;
-            }
-            
+        if (digitalRead(right) == LOW) {
+            currentGame->input(0);
+        } 
+        else if (digitalRead(up) == LOW) {
+            currentGame->input(1);
+            upButtonPressed = true;
+        }
+        else if(upButtonPressed){
+            upButtonPressed = false;
+            currentGame->input(5);
+        }
+            else if (digitalRead(left) == LOW) {
+            currentGame->input(2);
+        } else if (digitalRead(down) == LOW) {
+            currentGame->input(3);
+        } else if (digitalRead(action) == LOW) {
+            currentGame->input(4);
+        } else if (digitalRead(menu) == LOW) {
+            menuButtonPressed = true;
+        }
+        delay(50);
     }
-    
 }

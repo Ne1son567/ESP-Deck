@@ -12,7 +12,7 @@ int step = 2;
 std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_int_distribution<> randomGap(40, 70);
-std::uniform_int_distribution<> randomHight(80, 240);
+std::uniform_int_distribution<> randomHight(80, 230);
 
 Pillar::Pillar(int _xPos) :
     UpperPillarSprite(&DisplayManager::tft),

@@ -5,11 +5,11 @@
 #include <random>
 #include <string>
 #include <chrono>
+#include <list>
 #include <thread>
 #include "games/FlappyBird/FlappyBird.hpp"
 #include "games/FlappyBird/Bird.hpp"
 #include "display/DisplayManager.hpp"
-#include "DynamicArray.hpp"
 #include "images/Floor.hpp"
 #include "games/FlappyBird/Pillar.hpp"
 TFT_eSprite FloorSprite = TFT_eSprite(&DisplayManager::tft);
@@ -19,8 +19,9 @@ TFT_eSprite FloorSprite = TFT_eSprite(&DisplayManager::tft);
 bool upbutton = false;
 bool gameover = false;
 int status = 0;
-int spawnSpeed = 200;
-DynamicArray pillars;
+int spawnSpeed = 100;
+static int spawnCunter = 0;
+std::list<Pillar> pillars;
 Bird myBird;
 const int MIN_Y_POS = 270 - myBird.getYSize();
 
@@ -33,8 +34,6 @@ FlappyBird::FlappyBird(){
     FloorSprite.setSwapBytes(true);
     FloorSprite.pushImage(0, 0, 480, 156, Floor);
     FloorSprite.pushSprite(0,270/*, TFT_BLACK*/);
-    
-   
 }
 void FlappyBird::update() {
     
@@ -46,10 +45,10 @@ void FlappyBird::update() {
         lastUpdateTime = currentTime; 
 
         if(myBird.getYPos() >= MIN_Y_POS) {
-            gameOver();
+            gameover = true;
         }
         if(upbutton == true) {
-            myBird.setYPos(myBird.getYPos() - 2);
+            myBird.setYPos(myBird.getYPos() - 3);
         } else {
             myBird.setYPos(myBird.getYPos() + 2);
         }
@@ -68,44 +67,39 @@ void FlappyBird::update() {
     
 }
 void FlappyBird::updatePillars() {
-    Pillar** array = pillars.getArray();
-    for (int i = 0; i < pillars.getSize(); i++) {
-        array[i]->updatePillar(); 
+    for (auto& pillar : pillars) {
+        pillar.updatePillar();
     }
 }
 void FlappyBird::createPillar() {
-    static int counter = 0;
-    counter++;
-    if (counter % spawnSpeed == 0) {
-        pillars.add(Pillar(480)); 
+    
+    spawnCunter++;
+    if (spawnCunter % spawnSpeed == 0) {
+        pillars.push_back(Pillar(480)); 
         
-        spawnSpeed --;
+        //spawnSpeed --;
     }
 }
 void FlappyBird::deletePillar()
 {
-    Pillar** array = pillars.getArray();
-    for (int i = 0; i < pillars.getSize(); i++) 
-    {
-        if(array[i]->getXPos() < -50)
+    for (auto& pillar : pillars) {
+        if(pillar.getXPos() < -50)
         {
-            pillars.remove(i);
+            pillars.pop_front();
         }
     }
 }
 void FlappyBird::restartGame()
 {
-    delete[] pillars.getArray();
+    pillars.clear();
     DisplayManager::tft.fillScreen(DisplayManager::tft.color565(113,197,207));
     FloorSprite.pushSprite(0,270/*, TFT_BLACK*/);
     myBird.setYPos(160);
     gameover = false;
+    spawnCunter = 0;
 }
-void FlappyBird::gameOver()
-{
-    gameover = true;
-}
-void FlappyBird::input(int key) 
+
+void FlappyBird::input(int key)
 {
     if (key == 1) {
         upbutton = true;
@@ -113,9 +107,5 @@ void FlappyBird::input(int key)
     else{
         upbutton = false;
     }
-    delay(50);
 }
-bool getUpButton()
-{
-    return upbutton;
-}
+

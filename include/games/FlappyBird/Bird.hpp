@@ -14,6 +14,7 @@ private:
 public:
     Bird();
     void update();
+    void jump();
     void setYPos(int _yPos);
     int getYPos();
     int getYSize();
