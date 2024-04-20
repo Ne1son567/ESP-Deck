@@ -18,51 +18,60 @@ TFT_eSprite FloorSprite = TFT_eSprite(&DisplayManager::tft);
 //#define RGB_LED 48
 bool upbutton = false;
 bool gameover = false;
+int score = 0;
 int status = 0;
 int spawnSpeed = 100;
-static int spawnCunter = 0;
+static int spawnCounter = 0;
 std::list<Pillar> pillars;
+const std::chrono::duration<double, std::ratio<1, 55>> target_frame_duration(1); // Ziel-Framedauer von 1/60 Sekunde
 Bird myBird;
-const int MIN_Y_POS = 270 - myBird.getYSize();
+const int MIN_Y_POS = 250 - myBird.getYSize();
 
  
 FlappyBird::FlappyBird(){
     
     DisplayManager::tft.fillScreen(DisplayManager::tft.color565(113,197,207));
-    
-    FloorSprite.createSprite(480, 50);
+    DisplayManager::tft.setTextColor(TFT_WHITE, DisplayManager::tft.color565(220, 215, 147));
+
+    FloorSprite.createSprite(480, 175);
     FloorSprite.setSwapBytes(true);
-    FloorSprite.pushImage(0, 0, 480, 156, Floor);
-    FloorSprite.pushSprite(0,270/*, TFT_BLACK*/);
+    FloorSprite.pushImage(0, 0, 480, 157, Floor);
+    FloorSprite.pushSprite(0,250/*, TFT_BLACK*/);
 }
 void FlappyBird::update() {
     
-    static unsigned long lastUpdateTime = 0; 
-    unsigned long currentTime = millis(); 
-    unsigned long updateInterval = 20; 
+    auto start_time = std::chrono::steady_clock::now();
+    if (pillars.front().getXPos() + pillars.front().getXSize() == myBird.getXPos() + myBird.getXSize()){
+        score++;
+    }
+    
+    if(myBird.getYPos() >= MIN_Y_POS) {
+        gameover = true;
+    }
+    if(upbutton == true) {
+        myBird.setYPos(myBird.getYPos() - 3);
+    } else {
+        myBird.setYPos(myBird.getYPos() + 2);
+    }
+    if (!gameover) {
+        myBird.update();
+        createPillar();
+        updatePillars();
+        deletePillar();
+        std::string scoreText = "Score: " + std::to_string(score);
+        DisplayManager::tft.drawString(scoreText.c_str(),372,290,4);
+    } else {
+        DisplayManager::tft.drawString("-GAME OVER-", 170, 290, 4);
+        if (upbutton && gameover) {
+            restartGame();
+        }
+    }
 
-    if (currentTime - lastUpdateTime >= updateInterval) {
-        lastUpdateTime = currentTime; 
+    auto end_time = std::chrono::steady_clock::now();
+    auto update_duration = end_time - start_time;
 
-        if(myBird.getYPos() >= MIN_Y_POS) {
-            gameover = true;
-        }
-        if(upbutton == true) {
-            myBird.setYPos(myBird.getYPos() - 3);
-        } else {
-            myBird.setYPos(myBird.getYPos() + 2);
-        }
-        if (!gameover) {
-            myBird.update();
-            createPillar();
-            updatePillars();
-            deletePillar();
-        } else {
-            DisplayManager::tft.drawString("-GAME OVER-", 170, 160, 4);
-            if (upbutton && gameover) {
-                restartGame();
-            }
-        }
+    if (update_duration < target_frame_duration) {
+        std::this_thread::sleep_for(target_frame_duration - update_duration);
     }
     
 }
@@ -73,8 +82,8 @@ void FlappyBird::updatePillars() {
 }
 void FlappyBird::createPillar() {
     
-    spawnCunter++;
-    if (spawnCunter % spawnSpeed == 0) {
+    spawnCounter++;
+    if (spawnCounter % spawnSpeed == 0) {
         pillars.push_back(Pillar(480)); 
         
         //spawnSpeed --;
@@ -83,7 +92,7 @@ void FlappyBird::createPillar() {
 void FlappyBird::deletePillar()
 {
     for (auto& pillar : pillars) {
-        if(pillar.getXPos() < -50)
+        if(pillar.getXPos() < -81)
         {
             pillars.pop_front();
         }
@@ -93,10 +102,11 @@ void FlappyBird::restartGame()
 {
     pillars.clear();
     DisplayManager::tft.fillScreen(DisplayManager::tft.color565(113,197,207));
-    FloorSprite.pushSprite(0,270/*, TFT_BLACK*/);
-    myBird.setYPos(160);
+    FloorSprite.pushSprite(0,250/*, TFT_BLACK*/);
+    myBird.setYPos(120);
     gameover = false;
-    spawnCunter = 0;
+    spawnCounter = 0;
+    score = 0;
 }
 
 void FlappyBird::input(int key)

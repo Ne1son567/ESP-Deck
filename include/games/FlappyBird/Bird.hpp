@@ -17,6 +17,8 @@ public:
     void jump();
     void setYPos(int _yPos);
     int getYPos();
+    int getXPos();
     int getYSize();
+    int getXSize();
 };
 #endif

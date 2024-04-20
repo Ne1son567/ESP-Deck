@@ -10,8 +10,8 @@ private:
     int xPos;
     int yPos;
     int gap;
-    int xImageSize;
-    int yImageSize;
+    int xSize;
+    int ySize;
     
     TFT_eSprite UpperPillarSprite;
     TFT_eSprite LowerPillarSprite;
@@ -22,6 +22,7 @@ public:
     Pillar(int _xPos);
     void updatePillar();
     int getXPos();
+    int getXSize();
     // Funktion zum Flippen eines Bildes
     static std::vector<unsigned short> flipImage180(const unsigned short* imageData, int width, int height);
 };

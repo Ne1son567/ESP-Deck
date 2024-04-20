@@ -11,16 +11,16 @@ int step = 2;
 
 std::random_device rd;
 std::mt19937 gen(rd());
-std::uniform_int_distribution<> randomGap(40, 70);
-std::uniform_int_distribution<> randomHight(80, 230);
+std::uniform_int_distribution<> randomGap(50, 50);
+std::uniform_int_distribution<> randomHight(55, 195);
 
 Pillar::Pillar(int _xPos) :
     UpperPillarSprite(&DisplayManager::tft),
     LowerPillarSprite(&DisplayManager::tft),
     xPos(_xPos)
 {
-    xImageSize = 50;
-    yImageSize = 200;
+    xSize = 60;
+    ySize = 200;
     yPos = randomHight(gen);
     gap = randomGap(gen);
 }
@@ -28,11 +28,13 @@ void Pillar::updatePillar()
 {
     xPos-= step;
     
-    DisplayManager::tft.fillRect(xPos, yPos - yImageSize - gap, xImageSize, 200, DisplayManager::tft.color565(113,191,46));
-    DisplayManager::tft.fillRect(xPos + xImageSize, yPos - yImageSize - gap, xImageSize / 20, 200, DisplayManager::tft.color565(113,197,207));
+    DisplayManager::tft.fillRect(xPos, yPos - ySize - gap, xSize, 200, DisplayManager::tft.color565(155,230,88));
+    DisplayManager::tft.drawRect(xPos-1, yPos - ySize - gap-1, xSize+2, 200+2, DisplayManager::tft.color565(0,0,0));
+    DisplayManager::tft.fillRect(xPos + xSize +1, yPos - ySize - gap +1, xSize / 20-1, 200, DisplayManager::tft.color565(113,197,207));
 
-    DisplayManager::tft.fillRect(xPos, yPos + gap, xImageSize, 270 - yPos - gap, DisplayManager::tft.color565(113,191,46));
-    DisplayManager::tft.fillRect(xPos + xImageSize, yPos + gap, xImageSize / 20, 270 - yPos - gap, DisplayManager::tft.color565(113,197,207));
+    DisplayManager::tft.fillRect(xPos, yPos + gap, xSize, 250 - yPos - gap, DisplayManager::tft.color565(155,230,88));
+    DisplayManager::tft.drawRect(xPos-1, yPos + gap-1, xSize+2, 250 - yPos - gap+2, DisplayManager::tft.color565(0,0,0));
+    DisplayManager::tft.fillRect(xPos + xSize +1, yPos + gap -1, xSize / 20, 250 - yPos - gap+1, DisplayManager::tft.color565(113,197,207));
     //DisplayManager::tft.drawRect(xPos, 0, 50, 200, TFT_GREEN);
     
 }
@@ -52,4 +54,7 @@ std::vector<unsigned short> Pillar::flipImage180(const unsigned short* imageData
 }
 int Pillar::getXPos(){
     return xPos;
+}
+int Pillar::getXSize(){
+    return xSize;
 }

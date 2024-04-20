@@ -10,7 +10,7 @@
 Bird::Bird() : 
     FlappyBirdSprite(&DisplayManager::tft), 
     BlueFlappyBirdSprite(&DisplayManager::tft),
-    yPos(160),
+    yPos(120),
     xPos(40),
     xSize(40),
     ySize(38)
@@ -18,10 +18,6 @@ Bird::Bird() :
     FlappyBirdSprite.createSprite(xSize, ySize);
     FlappyBirdSprite.setSwapBytes(true);
     FlappyBirdSprite.pushImage(0, 0, xSize, ySize, FlappyBird);
-
-    BlueFlappyBirdSprite.createSprite(xSize, ySize);
-    BlueFlappyBirdSprite.setSwapBytes(true);
-    BlueFlappyBirdSprite.pushImage(0, 0, xSize, ySize, BlueFlappyBird);
 }
 void Bird::update()
 {
@@ -39,7 +35,15 @@ int Bird::getYPos()
 {
     return yPos;
 }
+int Bird::getXPos()
+{
+    return xPos;
+}
 int Bird::getYSize()
 {
     return ySize;
+}
+int Bird::getXSize()
+{
+    return xSize;
 }
