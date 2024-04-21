@@ -12,7 +12,7 @@ int step = 2;
 std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_int_distribution<> randomGap(50, 50);
-std::uniform_int_distribution<> randomHight(55, 195);
+std::uniform_int_distribution<> randomHight(100,100);//55, 195
 
 Pillar::Pillar(int _xPos) :
     UpperPillarSprite(&DisplayManager::tft),
@@ -55,6 +55,17 @@ std::vector<unsigned short> Pillar::flipImage180(const unsigned short* imageData
 int Pillar::getXPos(){
     return xPos;
 }
+int Pillar::getYPosAbove(){
+    return yPos - gap;
+}
+int Pillar::getYPosBelow(){
+    return yPos + gap;
+}
 int Pillar::getXSize(){
     return xSize;
 }
+int Pillar::getYSize(){
+    return ySize;
+}
+
+

@@ -22,6 +22,7 @@ int score = 0;
 int status = 0;
 int spawnSpeed = 100;
 static int spawnCounter = 0;
+bool losgelassen = true;
 std::list<Pillar> pillars;
 const std::chrono::duration<double, std::ratio<1, 55>> target_frame_duration(1); // Ziel-Framedauer von 1/60 Sekunde
 Bird myBird;
@@ -41,27 +42,31 @@ FlappyBird::FlappyBird(){
 void FlappyBird::update() {
     
     auto start_time = std::chrono::steady_clock::now();
-    if (pillars.front().getXPos() + pillars.front().getXSize() == myBird.getXPos() + myBird.getXSize()){
-        score++;
-    }
-    
-    if(myBird.getYPos() >= MIN_Y_POS) {
-        gameover = true;
-    }
-    if(upbutton == true) {
-        myBird.setYPos(myBird.getYPos() - 3);
-    } else {
-        myBird.setYPos(myBird.getYPos() + 2);
-    }
+   
     if (!gameover) {
+        Pillar& pillar = pillars.front();
+        
         myBird.update();
         createPillar();
         updatePillars();
         deletePillar();
+       
+        
         std::string scoreText = "Score: " + std::to_string(score);
         DisplayManager::tft.drawString(scoreText.c_str(),372,290,4);
+        if (pillar.getXPos() + pillar.getXSize() == myBird.getXPos() + myBird.getXSize()){
+            score++;
+        }
+        if(myBird.getYPos() >= MIN_Y_POS) {
+            gameOver();
+        }
+        if (pillars.size() > 1 && rectanglesIntersect(pillar, myBird) )
+        {
+            gameOver();
+        }
+
     } else {
-        DisplayManager::tft.drawString("-GAME OVER-", 170, 290, 4);
+        
         if (upbutton && gameover) {
             restartGame();
         }
@@ -75,13 +80,19 @@ void FlappyBird::update() {
     }
     
 }
+void FlappyBird::gameOver()
+{
+    gameover = true;
+    FloorSprite.pushSprite(0,250/*, TFT_BLACK*/);
+    DisplayManager::tft.drawString("-GAME OVER-", 170, 290, 4);
+}
 void FlappyBird::updatePillars() {
     for (auto& pillar : pillars) {
         pillar.updatePillar();
     }
 }
 void FlappyBird::createPillar() {
-    
+   
     spawnCounter++;
     if (spawnCounter % spawnSpeed == 0) {
         pillars.push_back(Pillar(480)); 
@@ -92,7 +103,7 @@ void FlappyBird::createPillar() {
 void FlappyBird::deletePillar()
 {
     for (auto& pillar : pillars) {
-        if(pillar.getXPos() < -81)
+        if(pillar.getXPos() < -60)
         {
             pillars.pop_front();
         }
@@ -111,11 +122,28 @@ void FlappyBird::restartGame()
 
 void FlappyBird::input(int key)
 {
-    if (key == 1) {
+    if (key == 1 && losgelassen == true) {
         upbutton = true;
+        myBird.jump();
+        losgelassen = false;
     }
     else{
         upbutton = false;
+        if (key != 1 ) 
+        {
+            losgelassen = true;
+        }
+        
     }
 }
 
+bool FlappyBird::rectanglesIntersect(Pillar& rect1,  Bird& rect2) {
+    
+    if (rect2.getXPos() > rect1.getXPos() + rect1.getXSize() ||// rect1 liegt links von rect2
+        rect2.getXPos() + rect2.getXSize() < rect1.getXPos() || // rect2 liegt links von rect1
+        rect2.getYPos() > rect1.getYPosAbove() && rect2.getYPos() + rect2.getYSize() < rect1.getYPosBelow())   
+    {
+        return false;
+    }
+    return true;
+}
