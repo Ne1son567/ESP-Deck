@@ -20,6 +20,7 @@ class FlappyBird : public Game
         std::vector<unsigned short> flipImage180(const unsigned short* imageData, int width, int height);
         FlappyBird();
         void update() override;
+        void updateScore();
         void input(int key) override;
 };
 

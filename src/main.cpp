@@ -5,14 +5,13 @@
 #include "games/FlappyBird/FlappyBird.hpp"
 #include "display/DisplayManager.hpp"
 #include "TFT_eSPI.h"
-
+#include "images/background.hpp"
 #define right 9
 #define up 10
 #define left 11
 #define down 12
 #define action 13
 #define menu 43
-
 TaskHandle_t core0TaskHandle;
 std::unique_ptr<Game> currentGame;
 bool menuButtonPressed = true;
@@ -43,6 +42,7 @@ void setup()
 }
 void loop()
 {
+    
     currentGame->update();
 }
 

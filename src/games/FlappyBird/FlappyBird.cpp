@@ -11,8 +11,10 @@
 #include "games/FlappyBird/Bird.hpp"
 #include "display/DisplayManager.hpp"
 #include "images/Floor.hpp"
+#include "images/background.hpp"
 #include "games/FlappyBird/Pillar.hpp"
-TFT_eSprite FloorSprite = TFT_eSprite(&DisplayManager::tft);
+TFT_eSprite backgroundSprite = TFT_eSprite(&DisplayManager::getDisplay());
+TFT_eSprite floorSprite = TFT_eSprite(&DisplayManager::getDisplay());
 
 #define up 10
 //#define RGB_LED 48
@@ -30,17 +32,26 @@ const int MIN_Y_POS = 250 - myBird.getYSize();
 
  
 FlappyBird::FlappyBird(){
-    
-    DisplayManager::tft.fillScreen(DisplayManager::tft.color565(113,197,207));
-    DisplayManager::tft.setTextColor(TFT_WHITE, DisplayManager::tft.color565(220, 215, 147));
+    DisplayManager::getDisplay().setTextSize(1);
+    DisplayManager::getDisplay().setTextColor(TFT_WHITE, DisplayManager::tft.color565(220, 215, 147));
 
-    FloorSprite.createSprite(480, 175);
-    FloorSprite.setSwapBytes(true);
-    FloorSprite.pushImage(0, 0, 480, 157, Floor);
-    FloorSprite.pushSprite(0,250/*, TFT_BLACK*/);
+    floorSprite.createSprite(480, 175);
+    floorSprite.setSwapBytes(true);
+    floorSprite.pushImage(0, 0, 480, 157, Floor);
+    floorSprite.pushSprite(0,250/*, TFT_BLACK*/);
+
+    backgroundSprite.createSprite(480, 250);
+    backgroundSprite.setSwapBytes(true);
+    backgroundSprite.pushImage(0, 0, 480, 250, background);
+    backgroundSprite.pushSprite(0,0/*, TFT_BLACK*/);
+
+ 
+   
+    
+    updateScore();
 }
 void FlappyBird::update() {
-    
+   
     auto start_time = std::chrono::steady_clock::now();
    
     if (!gameover) {
@@ -51,11 +62,10 @@ void FlappyBird::update() {
         updatePillars();
         deletePillar();
        
-        
-        std::string scoreText = "Score: " + std::to_string(score);
-        DisplayManager::tft.drawString(scoreText.c_str(),372,290,4);
         if (pillar.getXPos() + pillar.getXSize() == myBird.getXPos() + myBird.getXSize()){
+            
             score++;
+            updateScore();
         }
         if(myBird.getYPos() >= MIN_Y_POS) {
             gameOver();
@@ -83,8 +93,14 @@ void FlappyBird::update() {
 void FlappyBird::gameOver()
 {
     gameover = true;
-    FloorSprite.pushSprite(0,250/*, TFT_BLACK*/);
-    DisplayManager::tft.drawString("-GAME OVER-", 170, 290, 4);
+    pillars.clear();
+    floorSprite.pushSprite(0,250/*, TFT_BLACK*/);
+    DisplayManager::getDisplay().drawString("-GAME OVER-", 170, 290);
+    updateScore();
+}
+void FlappyBird::updateScore()
+{
+    DisplayManager::getDisplay().drawString(("Score: " + std::to_string(score)).c_str(),372,290);
 }
 void FlappyBird::updatePillars() {
     for (auto& pillar : pillars) {
@@ -111,9 +127,8 @@ void FlappyBird::deletePillar()
 }
 void FlappyBird::restartGame()
 {
-    pillars.clear();
-    DisplayManager::tft.fillScreen(DisplayManager::tft.color565(113,197,207));
-    FloorSprite.pushSprite(0,250/*, TFT_BLACK*/);
+    DisplayManager::getDisplay().fillScreen(DisplayManager::getDisplay().color565(113,197,207));
+    floorSprite.pushSprite(0,250/*, TFT_BLACK*/);
     myBird.setYPos(120);
     gameover = false;
     spawnCounter = 0;
