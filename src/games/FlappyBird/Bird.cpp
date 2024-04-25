@@ -26,28 +26,32 @@ Bird::Bird() :
 }
 void Bird::update()
 {
-    
-    yPos = yPos - speed;
-    FlappyBirdSprite.pushSprite(xPos, yPos ,DisplayManager::tft.color565(113,197,207));
     if (speed != - 8)
     {
-        speed = speed - 0.2;
+        speed = speed - 0.25;
     }
+    yPos = yPos - speed;
     if(speed > 0)
     {
         //DisplayManager::tft.fillRect(xPos, yPos + ySize, xSize, 8, DisplayManager::tft.color565(113,197,207));
-        DisplayManager::renderPartialBitmap(xPos, yPos + ySize, xPos, yPos + ySize, xSize, speed + 2, 480, background);
+        DisplayManager::renderPartialBitmap(xPos, yPos + ySize, xPos, yPos + ySize, xSize, round(speed) +1 , 480, background);
     }
     if(speed < 0)
     {
         //DisplayManager::tft.fillRect(xPos , yPos - 8, xSize, 8, DisplayManager::tft.color565(113,197,207));
-        DisplayManager::renderPartialBitmap(xPos, yPos - speed * -1, xPos, yPos - speed * -1, xSize, speed * -1, 480, background);
+        DisplayManager::renderPartialBitmap(xPos, yPos - speed * - 1, xPos, yPos - speed * -1, xSize, speed * -1+1, 480, background);
     }
+    FlappyBirdSprite.pushSprite(xPos, yPos /*,DisplayManager::tft.color565(113,197,207)*/);
+    
+   
+    
+    
+
     
 }
 void Bird::jump()
 {
-    speed = 4;
+    speed = 5;
 }
 void Bird::setYPos(int _yPos)
 {

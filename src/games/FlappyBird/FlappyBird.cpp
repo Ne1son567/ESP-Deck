@@ -13,8 +13,7 @@
 #include "images/Floor.hpp"
 #include "images/background.hpp"
 #include "games/FlappyBird/Pillar.hpp"
-TFT_eSprite backgroundSprite = TFT_eSprite(&DisplayManager::getDisplay());
-TFT_eSprite floorSprite = TFT_eSprite(&DisplayManager::getDisplay());
+
 
 #define up 10
 //#define RGB_LED 48
@@ -33,48 +32,39 @@ const int MIN_Y_POS = 250 - myBird.getYSize();
  
 FlappyBird::FlappyBird(){
     DisplayManager::getDisplay().setTextSize(1);
+    DisplayManager::getDisplay().fillScreen(DisplayManager::tft.color565(113, 197, 207));
     DisplayManager::getDisplay().setTextColor(TFT_WHITE, DisplayManager::tft.color565(220, 215, 147));
-
-    floorSprite.createSprite(480, 175);
-    floorSprite.setSwapBytes(true);
-    floorSprite.pushImage(0, 0, 480, 157, Floor);
-    floorSprite.pushSprite(0,250/*, TFT_BLACK*/);
-
-    backgroundSprite.createSprite(480, 250);
-    backgroundSprite.setSwapBytes(true);
-    backgroundSprite.pushImage(0, 0, 480, 250, background);
-    backgroundSprite.pushSprite(0,0/*, TFT_BLACK*/);
-
- 
-   
     
+    DisplayManager::getDisplay().pushImage(0, 250, 480, 157, Floor);
+    
+    DisplayManager::getDisplay().pushImage(0, 0, 480, 250, background);
+
     updateScore();
 }
 void FlappyBird::update() {
-   
+  
     auto start_time = std::chrono::steady_clock::now();
    
     if (!gameover) {
         Pillar& pillar = pillars.front();
-        
         myBird.update();
-        createPillar();
         updatePillars();
+        createPillar();
         deletePillar();
-       
+        
+
         if (pillar.getXPos() + pillar.getXSize() == myBird.getXPos() + myBird.getXSize()){
             
             score++;
             updateScore();
         }
-        if(myBird.getYPos() >= MIN_Y_POS) {
+        if(myBird.getYPos() >= MIN_Y_POS && gameover != true) {
             gameOver();
         }
         if (pillars.size() > 1 && rectanglesIntersect(pillar, myBird) )
         {
             gameOver();
         }
-
     } else {
         
         if (upbutton && gameover) {
@@ -94,7 +84,7 @@ void FlappyBird::gameOver()
 {
     gameover = true;
     pillars.clear();
-    floorSprite.pushSprite(0,250/*, TFT_BLACK*/);
+    DisplayManager::getDisplay().pushImage(0, 250, 480, 70, Floor);
     DisplayManager::getDisplay().drawString("-GAME OVER-", 170, 290);
     updateScore();
 }
@@ -128,11 +118,13 @@ void FlappyBird::deletePillar()
 void FlappyBird::restartGame()
 {
     DisplayManager::getDisplay().fillScreen(DisplayManager::getDisplay().color565(113,197,207));
-    floorSprite.pushSprite(0,250/*, TFT_BLACK*/);
+    DisplayManager::getDisplay().pushImage(0, 250, 480, 70, Floor);
+    DisplayManager::getDisplay().pushImage(0, 0, 480, 250, background);
     myBird.setYPos(120);
     gameover = false;
     spawnCounter = 0;
     score = 0;
+    updateScore();
 }
 
 void FlappyBird::input(int key)
