@@ -26,28 +26,33 @@ Bird::Bird() :
 }
 void Bird::update()
 {
-    if (speed != - 8)
+    if (speed > - 4)
     {
-        speed = speed - 0.25;
+        speed = speed - 0.20;
     }
-    yPos = yPos - speed;
-    if(speed > 0)
-    {
-        //DisplayManager::tft.fillRect(xPos, yPos + ySize, xSize, 8, DisplayManager::tft.color565(113,197,207));
-        DisplayManager::renderPartialBitmap(xPos, yPos + ySize, xPos, yPos + ySize, xSize, round(speed) +1 , 480, background);
-    }
+    yPos = round(yPos - speed);
+    FlappyBirdSprite.pushSprite(xPos, yPos /*,DisplayManager::tft.color565(113,197,207)*/);
+
     if(speed < 0)
     {
-        //DisplayManager::tft.fillRect(xPos , yPos - 8, xSize, 8, DisplayManager::tft.color565(113,197,207));
-        DisplayManager::renderPartialBitmap(xPos, yPos - speed * - 1, xPos, yPos - speed * -1, xSize, speed * -1+1, 480, background);
+        //DisplayManager::tft.fillRect(xPos , yPos - 8, xSize, 8, TFT_BLACK);
+        DisplayManager::renderPartialBitmap(xPos, yPos - 5, xPos, yPos - 5, xSize, 5, 480, background);
+        
+        //DisplayManager::renderPartialBitmap(xPos, yPos - speed * - 1, xPos, yPos - speed * -1, xSize, speed * -1+1, 480, background)
     }
-    FlappyBirdSprite.pushSprite(xPos, yPos /*,DisplayManager::tft.color565(113,197,207)*/);
-    
-   
-    
-    
+    else
+    if(speed > 0)
+    {
+        //DisplayManager::tft.fillRect(xPos, yPos + ySize, xSize, 8, TFT_BLACK);
+        DisplayManager::renderPartialBitmap(xPos, yPos + ySize, xPos, yPos + ySize, xSize, 5, 480, background);
 
-    
+        //DisplayManager::renderPartialBitmap(xPos, yPos + ySize, xPos, yPos + ySize, xSize, round(speed) +1 , 480, background);
+
+    }
+}
+void Bird::gameOverAnimation()
+{
+    DisplayManager::renderPartialBitmap(xPos, yPos , xPos, yPos , xSize, ySize, 480, background);
 }
 void Bird::jump()
 {

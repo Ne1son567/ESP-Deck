@@ -12,6 +12,8 @@ private:
     int gap;
     int xSize;
     int ySize;
+    int openingXSize;
+    int openingYSize;
     
     TFT_eSprite UpperPillarSprite;
     TFT_eSprite LowerPillarSprite;
@@ -21,6 +23,7 @@ public:
    
     Pillar(int _xPos);
     void updatePillar();
+    void gameOverAnimation();
     int getXPos();
     int getYPosAbove();
     int getYPosBelow();

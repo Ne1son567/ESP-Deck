@@ -61,7 +61,7 @@ void FlappyBird::update() {
         if(myBird.getYPos() >= MIN_Y_POS && gameover != true) {
             gameOver();
         }
-        if (pillars.size() > 1 && rectanglesIntersect(pillar, myBird) )
+        if (pillars.size() > 1 && rectanglesIntersect(pillar, myBird))
         {
             gameOver();
         }
@@ -83,10 +83,30 @@ void FlappyBird::update() {
 void FlappyBird::gameOver()
 {
     gameover = true;
-    pillars.clear();
+    
+    
     DisplayManager::getDisplay().pushImage(0, 250, 480, 70, Floor);
     DisplayManager::getDisplay().drawString("-GAME OVER-", 170, 290);
+    gameOverAnimation();
+    pillars.clear();
     updateScore();
+}
+
+
+void FlappyBird::gameOverAnimation()
+{
+    delay(2000);
+    int x = myBird.getXPos() + myBird.getXSize() / 2;
+    int y = myBird.getYPos() + myBird.getYSize() / 2;
+    myBird.gameOverAnimation();
+    for(int i = 0; i < 100; i ++)
+    {
+       for (auto& pillar : pillars) 
+        {
+            pillar.gameOverAnimation();
+        }
+      
+    }
 }
 void FlappyBird::updateScore()
 {

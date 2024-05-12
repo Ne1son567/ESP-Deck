@@ -16,6 +16,8 @@ class FlappyBird : public Game
         void inputLoop(void * parameter);
         void restartGame();
         void gameOver();
+        void gameOverAnimation();
+        void drawThickCircle(int x, int y, int radius, uint16_t color, int thickness);
         bool rectanglesIntersect(Pillar& rect1, Bird& rect2);
         std::vector<unsigned short> flipImage180(const unsigned short* imageData, int width, int height);
         FlappyBird();
