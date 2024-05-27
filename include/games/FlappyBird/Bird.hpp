@@ -12,8 +12,10 @@ private:
     int xSize;
     int ySize;
 public:
+
     Bird();
     void update();
+    const uint16_t* renderFlappyBird(int xPartialBitmap, int yPartialBitmap, int xOnBitmap, int yOnBitmap, int widthPartialBitmap, int heightPartialBitmap, int widthBitmap, const unsigned short* bitmap);
     void gameOverAnimation();
     void jump();
     void setYPos(int _yPos);

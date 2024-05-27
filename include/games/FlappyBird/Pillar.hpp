@@ -30,8 +30,6 @@ public:
     int getXSize();
     int getYSize();
     
-    // Funktion zum Flippen eines Bildes
-    static std::vector<unsigned short> flipImage180(const unsigned short* imageData, int width, int height);
 };
 
 #endif

@@ -12,18 +12,15 @@ class FlappyBird : public Game
         void updatePillars();
         void createPillar();
         void deletePillar();
-        void displayInitialize();
-        void inputLoop(void * parameter);
+        void keyPressed(int key) override;
+        void keyReleased(int key) override;
         void restartGame();
         void gameOver();
         void gameOverAnimation();
-        void drawThickCircle(int x, int y, int radius, uint16_t color, int thickness);
-        bool rectanglesIntersect(Pillar& rect1, Bird& rect2);
-        std::vector<unsigned short> flipImage180(const unsigned short* imageData, int width, int height);
-        FlappyBird();
+        bool rectanglesTouch(Pillar& rect1, Bird& rect2);
+        FlappyBird(int difficulty);
         void update() override;
         void updateScore();
-        void input(int key) override;
 };
 
 

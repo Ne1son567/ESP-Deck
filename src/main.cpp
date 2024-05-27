@@ -1,73 +1,92 @@
 #include "Main.hpp"
 #include <Arduino.h>
 #include <memory>
+#include <chrono>
+#include <thread>
 #include "games/Game.hpp"
 #include "games/FlappyBird/FlappyBird.hpp"
 #include "display/DisplayManager.hpp"
 #include "TFT_eSPI.h"
 #include "images/background.hpp"
-#define right 9
-#define up 10
-#define left 11
-#define down 12
-#define action 13
-#define menu 43
+
+#define RIGHT_PIN 9
+#define UP_PIN 10
+#define LEFT_PIN 11
+#define DOWN_PIN 12
+#define ACTION_PIN 13
+#define MENU_PIN 46
+int keyPins[] = {RIGHT_PIN, UP_PIN, LEFT_PIN, DOWN_PIN, ACTION_PIN};
 TaskHandle_t core0TaskHandle;
+const std::chrono::duration<double, std::ratio<1, 55>> target_frame_duration(1); // Ziel-Framedauer von 1/60 Sekunde
+
 std::unique_ptr<Game> currentGame;
-bool menuButtonPressed = true;
+bool menuButtonPressed = false;
 bool upButtonPressed = false;
+
 void setup() 
 {
-    Serial.begin(250000);
+    Serial.begin(9600);
+
+        pinMode(RIGHT_PIN, INPUT_PULLUP);
+    pinMode(UP_PIN, INPUT_PULLUP);
+    pinMode(LEFT_PIN, INPUT_PULLUP);
+    pinMode(DOWN_PIN, INPUT_PULLUP);
+    pinMode(ACTION_PIN, INPUT_PULLUP);
+    pinMode(MENU_PIN, INPUT_PULLUP);
 
     xTaskCreatePinnedToCore(
         inputLoop,
         "Input",
         10000,
         NULL,
-        1,
+        3,
         &core0TaskHandle,
         1
     );
 
-    pinMode(right, INPUT_PULLUP);
-    pinMode(up, INPUT_PULLUP);
-    pinMode(left, INPUT_PULLUP);
-    pinMode(down, INPUT_PULLUP);
-    pinMode(action, INPUT_PULLUP);
-    pinMode(menu, INPUT_PULLUP);
-
     DisplayManager::initialize();
-    currentGame = std::unique_ptr<FlappyBird>(new FlappyBird());
+    currentGame = std::unique_ptr<FlappyBird>(new FlappyBird(2));
 }
 void loop()
-{
-    
+{ //ChatGPT -_-
+    auto startTime = std::chrono::steady_clock::now();
+
     currentGame->update();
+
+    auto endTime = std::chrono::steady_clock::now();
+    auto update_duration = endTime - startTime;
+
+    if (update_duration < target_frame_duration) {
+        std::this_thread::sleep_for(target_frame_duration - update_duration);
+    }
 }
 
 void inputLoop(void * parameter)
 {
+    bool menuButtonSpamProt = true;
+    bool keyStates[5] = {false};
+
     for (;;) {
-        if (digitalRead(right) == LOW) {
-            currentGame->input(0);
-        } 
-        else if (digitalRead(up) == LOW) {
-            currentGame->input(1);
-            upButtonPressed = true;
-        }
-        else if(upButtonPressed){
-            upButtonPressed = false;
-            currentGame->input(5);
-        }
-            else if (digitalRead(left) == LOW) {
-            currentGame->input(2);
-        } else if (digitalRead(down) == LOW) {
-            currentGame->input(3);
-        } else if (digitalRead(action) == LOW) {
-            currentGame->input(4);
-        } else if (digitalRead(menu) == LOW) {
-            menuButtonPressed = true;
+        if (!menuButtonPressed) {
+            if (digitalRead(MENU_PIN) == LOW && menuButtonSpamProt) {
+                menuButtonPressed = true;
+                menuButtonSpamProt = false;
+            } else if (digitalRead(MENU_PIN) == HIGH) {
+                menuButtonSpamProt = true;
+            }
+            
+            for (int key = 0; key < 5; ++key) {
+                int pin = keyPins[key];
+                bool &keyState = keyStates[key];
+                
+                if (digitalRead(pin) == LOW && !keyState) {
+                    currentGame->keyPressed(key);
+                    keyState = true;
+                } else if (digitalRead(pin) == HIGH && keyState) {
+                    currentGame->keyReleased(key);
+                    keyState = false;
+                }
+            }
         }
         delay(50);
     }

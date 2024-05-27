@@ -4,9 +4,8 @@
 #include <vector>
 #include <random>
 #include <string>
-#include <chrono>
+
 #include <list>
-#include <thread>
 #include "games/FlappyBird/FlappyBird.hpp"
 #include "games/FlappyBird/Bird.hpp"
 #include "display/DisplayManager.hpp"
@@ -14,98 +13,80 @@
 #include "images/background.hpp"
 #include "games/FlappyBird/Pillar.hpp"
 
-
 #define up 10
-//#define RGB_LED 48
 bool upbutton = false;
-bool gameover = false;
-int score = 0;
-int status = 0;
-int spawnSpeed = 100;
-static int spawnCounter = 0;
-bool losgelassen = true;
-std::list<Pillar> pillars;
-const std::chrono::duration<double, std::ratio<1, 55>> target_frame_duration(1); // Ziel-Framedauer von 1/60 Sekunde
-Bird myBird;
-const int MIN_Y_POS = 250 - myBird.getYSize();
 
+bool gameover = true;
+int score = 0;
+
+int spawnSpeed = 100;
+int spawnCounter = 0;
+
+
+std::list<Pillar> pillars;
+Bird myBird;
  
-FlappyBird::FlappyBird(){
+FlappyBird::FlappyBird(int difficulty){
     DisplayManager::getDisplay().setTextSize(1);
     DisplayManager::getDisplay().fillScreen(DisplayManager::tft.color565(113, 197, 207));
     DisplayManager::getDisplay().setTextColor(TFT_WHITE, DisplayManager::tft.color565(220, 215, 147));
     
-    DisplayManager::getDisplay().pushImage(0, 250, 480, 157, Floor);
-    
+    DisplayManager::getDisplay().pushImage(0, 250, 480, 70, Floor);
     DisplayManager::getDisplay().pushImage(0, 0, 480, 250, background);
-
+    myBird.update();
     updateScore();
 }
 void FlappyBird::update() {
   
-    auto start_time = std::chrono::steady_clock::now();
-   
     if (!gameover) {
         Pillar& pillar = pillars.front();
         myBird.update();
         updatePillars();
         createPillar();
         deletePillar();
-        
 
         if (pillar.getXPos() + pillar.getXSize() == myBird.getXPos() + myBird.getXSize()){
             
             score++;
             updateScore();
         }
-        if(myBird.getYPos() >= MIN_Y_POS && gameover != true) {
+        if(myBird.getYPos() >= 250 - myBird.getYSize() && gameover != true) {
             gameOver();
         }
-        if (pillars.size() > 1 && rectanglesIntersect(pillar, myBird))
+        if (pillars.size() > 1 && rectanglesTouch(pillar, myBird))
         {
             gameOver();
         }
-    } else {
-        
+    } else 
+    {  
         if (upbutton && gameover) {
             restartGame();
         }
-    }
-
-    auto end_time = std::chrono::steady_clock::now();
-    auto update_duration = end_time - start_time;
-
-    if (update_duration < target_frame_duration) {
-        std::this_thread::sleep_for(target_frame_duration - update_duration);
     }
     
 }
 void FlappyBird::gameOver()
 {
     gameover = true;
-    
-    
     DisplayManager::getDisplay().pushImage(0, 250, 480, 70, Floor);
     DisplayManager::getDisplay().drawString("-GAME OVER-", 170, 290);
+    updateScore();
     gameOverAnimation();
     pillars.clear();
-    updateScore();
 }
 
 
 void FlappyBird::gameOverAnimation()
 {
-    delay(2000);
-    int x = myBird.getXPos() + myBird.getXSize() / 2;
-    int y = myBird.getYPos() + myBird.getYSize() / 2;
-    myBird.gameOverAnimation();
-    for(int i = 0; i < 100; i ++)
+    delay(1500);
+    for(int i = 0; i < 125; i ++)
     {
-       for (auto& pillar : pillars) 
+        myBird.gameOverAnimation();
+        for (auto& pillar : pillars) 
         {
+            
             pillar.gameOverAnimation();
         }
-      
     }
 }
 void FlappyBird::updateScore()
@@ -137,34 +118,24 @@ void FlappyBird::deletePillar()
 }
 void FlappyBird::restartGame()
 {
-    DisplayManager::getDisplay().fillScreen(DisplayManager::getDisplay().color565(113,197,207));
-    DisplayManager::getDisplay().pushImage(0, 250, 480, 70, Floor);
-    DisplayManager::getDisplay().pushImage(0, 0, 480, 250, background);
-    myBird.setYPos(120);
     gameover = false;
     spawnCounter = 0;
-    score = 0;
+    score = 0;                               
+    DisplayManager::getDisplay().drawString("                         ", 170, 290);
     updateScore();
 }
 
-void FlappyBird::input(int key)
+void FlappyBird::keyPressed(int key)
 {
-    if (key == 1 && losgelassen == true) {
-        upbutton = true;
-        myBird.jump();
-        losgelassen = false;
-    }
-    else{
-        upbutton = false;
-        if (key != 1 ) 
-        {
-            losgelassen = true;
-        }
-        
-    }
+    myBird.jump();
+    upbutton = true;
+}
+void FlappyBird::keyReleased(int key)
+{
+   upbutton = false;
 }
 
-bool FlappyBird::rectanglesIntersect(Pillar& rect1,  Bird& rect2) {
+bool FlappyBird::rectanglesTouch(Pillar& rect1,  Bird& rect2) {
     
     if (rect2.getXPos() > rect1.getXPos() + rect1.getXSize() ||// rect1 liegt links von rect2
         rect2.getXPos() + rect2.getXSize() < rect1.getXPos() || // rect2 liegt links von rect1
