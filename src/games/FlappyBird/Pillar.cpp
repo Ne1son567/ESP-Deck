@@ -1,49 +1,39 @@
-#include "games/FlappyBird/Pillar.hpp"
-#include "display/DisplayManager.hpp"
-#include <SPI.h>
-#include <Arduino.h>
+#include "game/FlappyBird/Pillar.hpp"
 #include <TFT_eSPI.h>
-#include <vector> 
-#include <random>
-#include "images/Pillar.hpp"
-#include "images/background.hpp"
+#include "display/DisplayManager.hpp"
+#include "bitmap/background.hpp"
 
-std::random_device rd;
-std::mt19937 gen(rd());
-std::uniform_int_distribution<> randomGap(50, 70);
-std::uniform_int_distribution<> randomHight(95,155);//55, 195
-
-Pillar::Pillar(int _xPos) :
-    UpperPillarSprite(&DisplayManager::getDisplay()),
-    LowerPillarSprite(&DisplayManager::getDisplay()),
-    xPos(_xPos)
+Pillar::Pillar(int yPos, int gap, int speed) :
+    xPos(480),
+    yPos(yPos),
+    xSize(58),
+    ySize(200),
+    gap(gap),
+    speed(speed),
+    
+    openingXSize(xSize + 6),
+    openingYSize(15)
 {
-    xSize = 58;
-    ySize = 200;
-    step = 2;
-    openingXSize = xSize + 6;
-    openingYSize = 15;
-    yPos = randomHight(gen);
-    gap = randomGap(gen);
+
 }
 void Pillar::updatePillar()
 {
-    xPos-= step;
+    xPos -= speed;
     DisplayManager::getDisplay().fillRect(xPos + 1, yPos - ySize - gap - openingYSize + 1, xSize -2, ySize-1, DisplayManager::tft.color565(7, 219, 64));//Oben
     DisplayManager::getDisplay().drawRect(xPos, yPos - ySize - gap - openingYSize, xSize, ySize+1, DisplayManager::tft.color565(0,0,0));
-    DisplayManager::renderPartialBitmap(xPos + xSize, yPos - ySize - gap - openingYSize, xPos + xSize, yPos - ySize - gap - openingYSize, step, ySize, 480, background);
+    DisplayManager::renderPartialBitmap(xPos + xSize, yPos - ySize - gap - openingYSize, xPos + xSize, yPos - ySize - gap - openingYSize, speed, ySize, 480, background);
 
     DisplayManager::tft.fillRect(xPos - ((openingXSize-xSize)/2) + 1, yPos - gap - openingYSize + 1, openingXSize -2, openingYSize -2, DisplayManager::tft.color565(7, 219, 64));
     DisplayManager::tft.drawRect(xPos - ((openingXSize-xSize)/2), yPos - gap - openingYSize , openingXSize, openingYSize, DisplayManager::tft.color565(0, 0, 0));
-    DisplayManager::renderPartialBitmap(xPos - ((openingXSize - xSize) / 2) + openingXSize, yPos - gap - openingYSize , xPos - ((openingXSize - xSize) / 2) + openingXSize ,  yPos - gap - openingYSize, step, openingYSize, 480, background);
+    DisplayManager::renderPartialBitmap(xPos - ((openingXSize - xSize) / 2) + openingXSize, yPos - gap - openingYSize , xPos - ((openingXSize - xSize) / 2) + openingXSize ,  yPos - gap - openingYSize, speed, openingYSize, 480, background);
    
     DisplayManager::getDisplay().fillRect(xPos + 1, yPos + gap + openingYSize, xSize-2, 250 - yPos - gap - openingYSize, DisplayManager::tft.color565(7, 219, 64));//Unten 
     DisplayManager::getDisplay().drawRect(xPos, yPos + gap + openingYSize-1, xSize, 250 - yPos - gap - openingYSize+2, DisplayManager::tft.color565(0, 0, 0));
-    DisplayManager::renderPartialBitmap(xPos + xSize, yPos + gap + openingYSize-1, xPos + xSize, yPos + gap + openingYSize-1, step, 250 - yPos - gap - openingYSize +1, 480, background);
+    DisplayManager::renderPartialBitmap(xPos + xSize, yPos + gap + openingYSize-1, xPos + xSize, yPos + gap + openingYSize-1, speed, 250 - yPos - gap - openingYSize +1, 480, background);
 
     DisplayManager::tft.fillRect(xPos - ((openingXSize-xSize)/2)+1, yPos + gap + 1, openingXSize -2, openingYSize -2, DisplayManager::tft.color565(7, 219, 64));
     DisplayManager::tft.drawRect(xPos - ((openingXSize-xSize)/2), yPos + gap, openingXSize, openingYSize, DisplayManager::tft.color565(0,0,0));
-    DisplayManager::renderPartialBitmap(xPos - ((openingXSize - xSize) / 2) + openingXSize, yPos + gap ,xPos - ((openingXSize - xSize) / 2) + openingXSize, yPos + gap , step, openingYSize, 480, background);
+    DisplayManager::renderPartialBitmap(xPos - ((openingXSize - xSize) / 2) + openingXSize, yPos + gap ,xPos - ((openingXSize - xSize) / 2) + openingXSize, yPos + gap , speed, openingYSize, 480, background);
    
 }
 void Pillar::gameOverAnimation()

@@ -1,13 +1,12 @@
-#include "Main.hpp"
-#include <Arduino.h>
+#include "core.hpp"
 #include <memory>
 #include <chrono>
 #include <thread>
-#include "games/Game.hpp"
-#include "games/FlappyBird/FlappyBird.hpp"
+#include "game/Game.hpp"
+#include "game/FlappyBird/FlappyBird.hpp"
 #include "display/DisplayManager.hpp"
 #include "TFT_eSPI.h"
-#include "images/background.hpp"
+#include "bitmap/background.hpp"
 
 #define RIGHT_PIN 9
 #define UP_PIN 10
@@ -27,7 +26,7 @@ void setup()
 {
     Serial.begin(9600);
 
-        pinMode(RIGHT_PIN, INPUT_PULLUP);
+    pinMode(RIGHT_PIN, INPUT_PULLUP);
     pinMode(UP_PIN, INPUT_PULLUP);
     pinMode(LEFT_PIN, INPUT_PULLUP);
     pinMode(DOWN_PIN, INPUT_PULLUP);
@@ -45,7 +44,7 @@ void setup()
     );
 
     DisplayManager::initialize();
-    currentGame = std::unique_ptr<FlappyBird>(new FlappyBird(2));
+    currentGame = std::unique_ptr<FlappyBird>(new FlappyBird(1));
 }
 void loop()
 { //ChatGPT -_-

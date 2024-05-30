@@ -1,21 +1,22 @@
 #ifndef Bird_HPP
 #define Bird_HPP
-
-#include <TFT_eSPI.h>
-#include "FlappyBird.hpp"
+#include <Arduino.h>
+#include <vector>
 class Bird {
 private:
-    TFT_eSprite FlappyBirdSprite;
-    TFT_eSprite BlueFlappyBirdSprite;
     int yPos;
     int xPos;
     int xSize;
     int ySize;
-    float gravity;
     float speed;
+    float gravity;
+    float maxFallSpeed;
+    float jumpHeight;
+    int animation;
+    int currentSpeed;
 public:
 
-    Bird();
+    Bird(float gravity, float speed, float jumpHeight);
     void update();
     void renderFlappyBird();
     std::vector<unsigned short> extractPartialBackground(int xPartialBitmap, int yPartialBitmap, int widthPartialBitmap, int heightPartialBitmap);
@@ -25,6 +26,5 @@ public:
     int getXPos();
     int getYSize();
     int getXSize();
-    
 };
 #endif

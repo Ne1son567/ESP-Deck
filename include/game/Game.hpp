@@ -1,6 +1,6 @@
 #ifndef GAME_HPP
 #define GAME_HPP
-
+#include <Arduino.h>
 class Game 
 {
     public:

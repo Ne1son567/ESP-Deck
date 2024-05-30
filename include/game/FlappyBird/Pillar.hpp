@@ -1,28 +1,19 @@
-
 #ifndef Pillar_HPP
 #define Pillar_HPP
-
-#include <TFT_eSPI.h>
-#include <vector>
-
+#include <Arduino.h>
 class Pillar {
 private:
     int xPos;
     int yPos;
     int gap;
-    int step;
+    int speed;
     int xSize;
     int ySize;
     int openingXSize;
     int openingYSize;
-    
-    TFT_eSprite UpperPillarSprite;
-    TFT_eSprite LowerPillarSprite;
-
-    
+ 
 public:
-   
-    Pillar(int _xSize);
+    Pillar(int yPos, int gap, int speed);
     void updatePillar();
     void gameOverAnimation();
     int getXPos();
@@ -30,7 +21,5 @@ public:
     int getYPosBelow();
     int getXSize();
     int getYSize();
-    
 };
-
 #endif

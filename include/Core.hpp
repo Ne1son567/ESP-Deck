@@ -1,5 +1,5 @@
-#ifndef Main_HPP
-#define Main_HPP
+#ifndef CORE_HPP
+#define CORE_HPP
 
 void inputLoop(void * parameter);
 void setup();

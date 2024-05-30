@@ -1,37 +1,59 @@
-#include <Arduino.h>
-#include <SPI.h>
+#include "game/FlappyBird/FlappyBird.hpp"
+#include "display/DisplayManager.hpp"
+#include "bitmap/Floor.hpp"
+#include "bitmap/background.hpp"
+#include "bitmap/gameover.hpp"
+#include "bitmap/message.hpp"
 #include <TFT_eSPI.h>
-#include <vector>
+#include <list>
 #include <random>
 #include <string>
-#include <list>
-#include "games/FlappyBird/FlappyBird.hpp"
-#include "games/FlappyBird/Bird.hpp"
-#include "display/DisplayManager.hpp"
-#include "images/Floor.hpp"
-#include "images/background.hpp"
-#include "games/FlappyBird/Pillar.hpp"
 
 bool upbutton = false;
-
 bool gameover = true;
-int score = 0;
-
-int spawnSpeed = 100;
 int spawnCounter = 0;
 
-std::list<Pillar> pillars;
-Bird myBird;
- 
-FlappyBird::FlappyBird(int difficulty){
+FlappyBird::FlappyBird(int difficulty):
+    
+    gen(rd()),
+    myBird(0.2, 10, 5),
+    score(0),
+    TapMessageXPos(150),
+    TapMessageYPos(180)
+{   
+    switch (difficulty)
+    {
+    case 1:
+        myBird = Bird(0.2, 10, 5);
+        randomGap = std::uniform_int_distribution<>(50, 70);
+        randomYPos = std::uniform_int_distribution<>(95, 155);
+        speed = 2;
+        spawnSpeed = 100;
+        break;
+    case 2:
+        myBird = Bird(0.2, 10, 5);
+        randomGap = std::uniform_int_distribution<>(50, 70);
+        randomYPos = std::uniform_int_distribution<>(95, 155);
+        speed = 2;
+        spawnSpeed = 100;
+        break;
+    case 3:
+        
+        break;
+    
+    default:
+        break;
+    }
+    
+    
     DisplayManager::getDisplay().setTextSize(1);
-    DisplayManager::getDisplay().fillScreen(DisplayManager::tft.color565(113, 197, 207));
-    DisplayManager::getDisplay().setTextColor(TFT_WHITE, DisplayManager::tft.color565(220, 215, 147));
+    DisplayManager::getDisplay().setTextColor(DisplayManager::tft.color565(113, 197, 207), DisplayManager::tft.color565(220, 215, 147));
     
     DisplayManager::getDisplay().pushImage(0, 250, 480, 70, Floor);
     DisplayManager::getDisplay().pushImage(0, 0, 480, 250, background);
     myBird.update();
     updateScore();
+    renderTAPmessage(TapMessageXPos, TapMessageYPos);
 }
 void FlappyBird::update() {
   
@@ -65,8 +87,11 @@ void FlappyBird::update() {
 void FlappyBird::gameOver()
 {
     gameover = true;
+    //DisplayManager::getDisplay().drawString("-GAME OVER-", 170, 290);
     DisplayManager::getDisplay().pushImage(0, 250, 480, 70, Floor);
-    DisplayManager::getDisplay().drawString("-GAME OVER-", 170, 290);
+    
+    DisplayManager::getDisplay().pushImage(170, 279, 192, 42, gameoverBitmap);
+   
     updateScore();
     gameOverAnimation();
     pillars.clear();
@@ -83,10 +108,11 @@ void FlappyBird::gameOverAnimation()
             pillar.gameOverAnimation();
         }
     }
+    renderTAPmessage(TapMessageXPos, TapMessageYPos);
 }
 void FlappyBird::updateScore()
 {
-    DisplayManager::getDisplay().drawString(("Score: " + std::to_string(score)).c_str(),372,290);
+    DisplayManager::getDisplay().drawString(("Score: " + std::to_string(score)  + "     " ).c_str(),350,290);
 }
 void FlappyBird::updatePillars() {
     for (auto& pillar : pillars) {
@@ -97,7 +123,8 @@ void FlappyBird::createPillar() {
    
     spawnCounter++;
     if (spawnCounter % spawnSpeed == 0) {
-        pillars.push_back(Pillar(480)); 
+        
+        pillars.push_back(Pillar(randomYPos(gen), randomGap(gen), speed)); 
     }
 }
 void FlappyBird::deletePillar()
@@ -113,11 +140,49 @@ void FlappyBird::restartGame()
 {
     gameover = false;
     spawnCounter = 0;
-    score = 0;                               
-    DisplayManager::getDisplay().drawString("                         ", 170, 290);
+    score = 0;  
+    removeTAPmessage(TapMessageXPos, TapMessageYPos);
     updateScore();
 }
+void FlappyBird::renderTAPmessage(int x, int y)
+{
+    int xS = 114;
+    int yS = 36;
+    
+    std::vector<unsigned short> partialBackgroundVector;
+    std::vector<unsigned short> messageVector(message, message + yS * xS); //von Zeiger bis zu (Zeiger + 1064)
 
+    int index = y * 480 + x;//Start
+
+    for (int row = 0; row < xS; row++) {
+        
+        partialBackgroundVector.insert(partialBackgroundVector.end(), background + index, background + index + xS);//Zeilenweise 
+        index += 480;
+    }
+    for (int i = 0; i < messageVector.size(); i++) {
+        if (messageVector[i] == 0x7639) {
+            messageVector[i] = partialBackgroundVector[i];
+        }
+    }                 
+    //DisplayManager::getDisplay().drawString("                          ", 170, 290);
+    DisplayManager::getDisplay().pushImage(x, y, xS, yS, messageVector.data());
+}
+void FlappyBird::removeTAPmessage(int x, int y)
+{
+    int xS = 114;
+    int yS = 36;
+    
+    std::vector<unsigned short> partialBackgroundVector;
+
+    int index = y * 480 + x;//Start
+
+    for (int row = 0; row < xS; row++) {
+        
+        partialBackgroundVector.insert(partialBackgroundVector.end(), background + index, background + index + xS);//Zeilenweise 
+        index += 480;
+    }
+    DisplayManager::getDisplay().pushImage(x, y, xS, yS, partialBackgroundVector.data());
+}
 void FlappyBird::keyPressed(int key)
 {
     myBird.jump();
