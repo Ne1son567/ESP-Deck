@@ -10,6 +10,7 @@ private:
     int xPos;
     int yPos;
     int gap;
+    int step;
     int xSize;
     int ySize;
     int openingXSize;
@@ -21,7 +22,7 @@ private:
     
 public:
    
-    Pillar(int _xPos);
+    Pillar(int _xSize);
     void updatePillar();
     void gameOverAnimation();
     int getXPos();

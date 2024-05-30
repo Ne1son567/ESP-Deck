@@ -10,9 +10,10 @@
 #include "images/BlueFlappyBird.hpp"
 #include "images/background.hpp"
 
-float speed = -2;
-int animation = 0;
 
+
+int animation = 0;
+int currentSpeed;
 Bird::Bird() : 
     FlappyBirdSprite(&DisplayManager::getDisplay()), 
     BlueFlappyBirdSprite(&DisplayManager::getDisplay()),
@@ -21,76 +22,87 @@ Bird::Bird() :
     xSize(38),
     ySize(28)
 {
-    FlappyBirdSprite.createSprite(xSize, ySize);
-    FlappyBirdSprite.setSwapBytes(true);
-    FlappyBirdSprite.pushImage(0, 0, xSize, ySize, FlappyBird);
-    FlappyBirdSprite.pushSprite(xPos, yPos , DisplayManager::tft.color565(113,197,207));
+    gravity = 0.2;
+    speed = 1;
 }
 void Bird::update()
 {
+    currentSpeed = speed;
+
     if (speed > - 5)
     {
-        speed = speed - 0.20;
+        speed = speed - gravity;
     }
-    yPos = round(yPos - speed);
-    FlappyBirdSprite.pushImage(0, 0, xSize, ySize, renderFlappyBird(xPos,yPos,xPos,yPos,xSize,ySize,480,background));
-    //DisplayManager::getDisplay().pushImage(xPos,yPos,xSize,ySize,);
-        FlappyBirdSprite.pushSprite(xPos, yPos);
 
-    
+    yPos = yPos - currentSpeed;
+    //DisplayManager::getDisplay().pushImage(xPos, yPos, xSize, ySize+speed * -1, renderFlappyBird(xPos,yPos,xPos,yPos,xSize,ySize,480,background));
+    renderFlappyBird();
+   
+
 }
-const uint16_t*  Bird::renderFlappyBird(int xPartialBitmap, int yPartialBitmap, int xOnBitmap, int yOnBitmap, int widthPartialBitmap, int heightPartialBitmap, int widthBitmap, const unsigned short* bitmap) 
+void Bird::renderFlappyBird() 
 {
-    std::vector<unsigned short> paritalVectorBitmap;
-    std::vector<unsigned short> resultBitmap(FlappyBird, FlappyBird + 1064); //Zeiger array bis zu Zeiger + 1064 => alle adressen von FlappyBird
-    int index = yOnBitmap * widthBitmap + xOnBitmap;
-
-    for (int row = 0; row < heightPartialBitmap; row++) {
-        for (int col = 0; col < widthPartialBitmap; col++) {
-            paritalVectorBitmap.push_back(bitmap[index]);
-            index++;
-        }
-        index += widthBitmap - widthPartialBitmap;
-    }
-
-    for (int row = 0; row < heightPartialBitmap; row++) {
-        for (int col = 0; col < widthPartialBitmap; col++) {
-            if (resultBitmap[row * widthPartialBitmap + col] == 0x7639) {
-                resultBitmap[row * widthPartialBitmap + col] = paritalVectorBitmap[row * widthPartialBitmap + col];
-            }
+    std::vector<unsigned short> partialBackgroundVector(extractPartialBackground(xPos, yPos, xSize, ySize));
+    std::vector<unsigned short> birdVector(FlappyBird, FlappyBird + ySize * xSize); //von Zeiger bis zu (Zeiger + 1064)
+    std::vector<unsigned short> birdTrailVector;
+    std::vector<unsigned short> resultVector; 
+    
+    for (int i = 0; i < birdVector.size(); i++) {
+        if (birdVector[i] == 0x7639) {
+            birdVector[i] = partialBackgroundVector[i];
         }
     }
-    const unsigned short* values = resultBitmap.data();
-    return reinterpret_cast<const uint16_t*>(values);
+    resultVector.insert(resultVector.end(), birdVector.begin(), birdVector.end());
+   
+    if (currentSpeed > 0){
+        birdTrailVector = extractPartialBackground(xPos, yPos + ySize, xSize, currentSpeed);
+        resultVector.insert(resultVector.end(), birdTrailVector.begin(), birdTrailVector.end());
+        DisplayManager::getDisplay().pushImage(xPos, yPos, xSize, ySize + currentSpeed, resultVector.data());
+    }
+    else
+    if (currentSpeed < 0){
+        birdTrailVector = extractPartialBackground(xPos, yPos - currentSpeed  * - 1, xSize, currentSpeed  * - 1);
+        resultVector.insert(resultVector.begin(), birdTrailVector.begin(), birdTrailVector.end());
+        DisplayManager::getDisplay().pushImage(xPos, yPos - currentSpeed * -1, xSize, ySize + currentSpeed * -1, resultVector.data());
+    }
+}
+std::vector<unsigned short> Bird::extractPartialBackground(int xPartialBitmap, int yPartialBitmap, int widthPartialBitmap, int heightPartialBitmap)
+{
+    std::vector<unsigned short> partialBackgroundVector;
+    int index = yPartialBitmap * 480 + xPartialBitmap;//Start
+
+    for (int row = 0; row < heightPartialBitmap; row++) {
+        
+        partialBackgroundVector.insert(partialBackgroundVector.end(), background + index, background + index + widthPartialBitmap);//Zeilenweise 
+        index += 480;
+    }
+    return partialBackgroundVector;
 }
 void Bird::gameOverAnimation()
 {
     animation++;
     if(yPos < 119)
     {
-        if(yPos < 0 - ySize){
+        yPos++;
+        if(yPos < 0 - ySize){ //Zu weit oben
             yPos = 120;
         }
-        DisplayManager::getDisplay().pushImage(xPos,yPos,xSize,ySize,renderFlappyBird(xPos,yPos,xPos,yPos,xSize,ySize,480,background));
-        DisplayManager::renderPartialBitmap(xPos, yPos - 5, xPos, yPos - 5, xSize, 5, 480, background);
-        yPos++;
+        currentSpeed = -1;
+        renderFlappyBird();
+        
     }else if(yPos > 121)
     {
-        if(yPos < 250 - ySize - 4)//Übermalen vermeiden
-        {
-            DisplayManager::getDisplay().pushImage(xPos,yPos,xSize,ySize,renderFlappyBird(xPos,yPos,xPos,yPos,xSize,ySize,480,background));
-            DisplayManager::renderPartialBitmap(xPos, yPos + ySize , xPos, yPos + ySize , xSize, 5, 480, background);
-        }
         yPos--;
+        if(yPos < 250 - ySize)//Übermalen vermeiden
+        {
+            currentSpeed = 1;
+            renderFlappyBird();
+        }
     }
 }
 void Bird::jump()
 {
     speed = 5;
-}
-void Bird::setYPos(int _yPos)
-{
-    yPos = _yPos;
 }
 int Bird::getYPos()
 {

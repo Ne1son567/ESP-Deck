@@ -8,7 +8,6 @@
 #include "images/Pillar.hpp"
 #include "images/background.hpp"
 
-int step = 2;
 std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_int_distribution<> randomGap(50, 70);
@@ -21,6 +20,7 @@ Pillar::Pillar(int _xPos) :
 {
     xSize = 58;
     ySize = 200;
+    step = 2;
     openingXSize = xSize + 6;
     openingYSize = 15;
     yPos = randomHight(gen);

@@ -7,7 +7,9 @@
 #include "games/FlappyBird/Bird.hpp"
 class FlappyBird : public Game
 {
-    
+    private:
+    std::uniform_int_distribution<> randomGap;
+    std::uniform_int_distribution<> randomHeight;
     public:
         void updatePillars();
         void createPillar();
@@ -17,7 +19,7 @@ class FlappyBird : public Game
         void restartGame();
         void gameOver();
         void gameOverAnimation();
-        bool rectanglesTouch(Pillar& rect1, Bird& rect2);
+        bool checkCollision(Pillar& rect1, Bird& rect2);
         FlappyBird(int difficulty);
         void update() override;
         void updateScore();

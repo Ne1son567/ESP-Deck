@@ -11,14 +11,16 @@ private:
     int xPos;
     int xSize;
     int ySize;
+    float gravity;
+    float speed;
 public:
 
     Bird();
     void update();
-    const uint16_t* renderFlappyBird(int xPartialBitmap, int yPartialBitmap, int xOnBitmap, int yOnBitmap, int widthPartialBitmap, int heightPartialBitmap, int widthBitmap, const unsigned short* bitmap);
+    void renderFlappyBird();
+    std::vector<unsigned short> extractPartialBackground(int xPartialBitmap, int yPartialBitmap, int widthPartialBitmap, int heightPartialBitmap);
     void gameOverAnimation();
     void jump();
-    void setYPos(int _yPos);
     int getYPos();
     int getXPos();
     int getYSize();

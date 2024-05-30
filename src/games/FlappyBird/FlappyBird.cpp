@@ -4,7 +4,6 @@
 #include <vector>
 #include <random>
 #include <string>
-
 #include <list>
 #include "games/FlappyBird/FlappyBird.hpp"
 #include "games/FlappyBird/Bird.hpp"
@@ -13,7 +12,6 @@
 #include "images/background.hpp"
 #include "games/FlappyBird/Pillar.hpp"
 
-#define up 10
 bool upbutton = false;
 
 bool gameover = true;
@@ -21,7 +19,6 @@ int score = 0;
 
 int spawnSpeed = 100;
 int spawnCounter = 0;
-
 
 std::list<Pillar> pillars;
 Bird myBird;
@@ -39,12 +36,13 @@ FlappyBird::FlappyBird(int difficulty){
 void FlappyBird::update() {
   
     if (!gameover) {
-        Pillar& pillar = pillars.front();
+        
         myBird.update();
         updatePillars();
         createPillar();
         deletePillar();
 
+        Pillar& pillar = pillars.front();
         if (pillar.getXPos() + pillar.getXSize() == myBird.getXPos() + myBird.getXSize()){
             
             score++;
@@ -53,17 +51,16 @@ void FlappyBird::update() {
         if(myBird.getYPos() >= 250 - myBird.getYSize() && gameover != true) {
             gameOver();
         }
-        if (pillars.size() > 1 && rectanglesTouch(pillar, myBird))
+        if (pillars.size() != 0 && checkCollision(pillar, myBird))
         {
             gameOver();
         }
     } else 
     {  
-        if (upbutton && gameover) {
+        if (upbutton && gameover) { 
             restartGame();
         }
     }
-    
 }
 void FlappyBird::gameOver()
 {
@@ -75,7 +72,6 @@ void FlappyBird::gameOver()
     pillars.clear();
 }
 
-
 void FlappyBird::gameOverAnimation()
 {
     delay(1500);
@@ -84,7 +80,6 @@ void FlappyBird::gameOverAnimation()
         myBird.gameOverAnimation();
         for (auto& pillar : pillars) 
         {
-            
             pillar.gameOverAnimation();
         }
     }
@@ -103,8 +98,6 @@ void FlappyBird::createPillar() {
     spawnCounter++;
     if (spawnCounter % spawnSpeed == 0) {
         pillars.push_back(Pillar(480)); 
-        
-        //spawnSpeed --;
     }
 }
 void FlappyBird::deletePillar()
@@ -132,10 +125,9 @@ void FlappyBird::keyPressed(int key)
 }
 void FlappyBird::keyReleased(int key)
 {
-   upbutton = false;
+   upbutton = false; 
 }
-
-bool FlappyBird::rectanglesTouch(Pillar& rect1,  Bird& rect2) {
+bool FlappyBird::checkCollision(Pillar& rect1,  Bird& rect2) {
     
     if (rect2.getXPos() > rect1.getXPos() + rect1.getXSize() ||// rect1 liegt links von rect2
         rect2.getXPos() + rect2.getXSize() < rect1.getXPos() || // rect2 liegt links von rect1
