@@ -11,6 +11,8 @@
 class FlappyBird : public Game
 {
     private:
+        const float FIXED_TIMESTEP = 0.016f; // 16 Millisekunden
+        float accumulatedTime = 0.0f;
         std::random_device rd;
         std::mt19937 gen;
         std::uniform_int_distribution<> randomGap;
@@ -32,12 +34,13 @@ class FlappyBird : public Game
         void removeTAPmessage(int x, int y);
         bool checkCollision(Pillar& rect1, Bird& rect2);
         void updateScore();
-
+        
     public:
         FlappyBird(int difficulty);
         void keyPressed(int key) override;
         void keyReleased(int key) override;
-        void update() override;
+        void update(float deltaTime) override;
+        void onGameClosed() override;
         
 };
 

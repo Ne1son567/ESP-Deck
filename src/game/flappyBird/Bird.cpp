@@ -1,8 +1,8 @@
-#include "game/FlappyBird/Bird.hpp"
+#include "game/flappyBird/Bird.hpp"
 #include <TFT_eSPI.h> 
-#include "bitmap/FlappyBird.hpp"
+#include "bitmap/flappyBird/FlappyBird.hpp"
 #include "display/DisplayManager.hpp"
-#include "bitmap/background.hpp"
+#include "bitmap/flappyBird/background.hpp"
 
 Bird::Bird(float gravity, float maxFallSpeed, float jumpHeight) : 
     
@@ -49,13 +49,26 @@ void Bird::renderFlappyBird()
     if (currentSpeed > 0){
         birdTrailVector = extractPartialBackground(xPos, yPos + ySize, xSize, currentSpeed);
         resultVector.insert(resultVector.end(), birdTrailVector.begin(), birdTrailVector.end());
-        DisplayManager::getDisplay().pushImage(xPos, yPos, xSize, ySize + currentSpeed, resultVector.data());
+        TFT_eSprite sprite = TFT_eSprite(&DisplayManager::getDisplay());
+        sprite.createSprite(xSize, ySize + currentSpeed);
+        sprite.setSwapBytes(true);
+        sprite.pushImage(0, 0, xSize, ySize + currentSpeed, resultVector.data());
+        sprite.pushSprite(xPos, yPos);
+        sprite.deleteSprite();
+        //DisplayManager::getDisplay().pushImage(xPos, yPos, xSize, ySize + currentSpeed, resultVector.data());
     }
     else
     if (currentSpeed <= 0){
         birdTrailVector = extractPartialBackground(xPos, yPos - currentSpeed  * - 1, xSize, currentSpeed  * - 1);
         resultVector.insert(resultVector.begin(), birdTrailVector.begin(), birdTrailVector.end());
-        DisplayManager::getDisplay().pushImage(xPos, yPos - currentSpeed * -1, xSize, ySize + currentSpeed * -1, resultVector.data());
+
+        TFT_eSprite sprite = TFT_eSprite(&DisplayManager::getDisplay());
+        sprite.createSprite(xSize, ySize + currentSpeed * - 1);
+        sprite.setSwapBytes(true);
+        sprite.pushImage(0, 0, xSize, ySize + currentSpeed * - 1, resultVector.data());
+        sprite.pushSprite(xPos, yPos - currentSpeed * -1);
+        sprite.deleteSprite();
+        //DisplayManager::getDisplay().pushImage(xPos, yPos - currentSpeed * -1, xSize, ySize + currentSpeed * -1, resultVector.data());
     }
 }
 std::vector<unsigned short> Bird::extractPartialBackground(int xPartialBitmap, int yPartialBitmap, int widthPartialBitmap, int heightPartialBitmap)

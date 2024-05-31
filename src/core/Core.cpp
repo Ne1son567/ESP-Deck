@@ -1,12 +1,15 @@
-#include "core.hpp"
+#include "core/Core.hpp"
 #include <memory>
 #include <chrono>
 #include <thread>
 #include "game/Game.hpp"
+#include "game/menu/Menu.hpp"
 #include "game/FlappyBird/FlappyBird.hpp"
 #include "display/DisplayManager.hpp"
+#include "game/GameFactory.hpp"
 #include "TFT_eSPI.h"
-#include "bitmap/background.hpp"
+#include <EEPROM.h>
+
 
 #define RIGHT_PIN 9
 #define UP_PIN 10
@@ -15,16 +18,26 @@
 #define ACTION_PIN 13
 #define MENU_PIN 46
 int keyPins[] = {RIGHT_PIN, UP_PIN, LEFT_PIN, DOWN_PIN, ACTION_PIN};
-TaskHandle_t core0TaskHandle;
-const std::chrono::duration<double, std::ratio<1, 55>> target_frame_duration(1); // Ziel-Framedauer von 1/60 Sekunde
 
+TaskHandle_t core0TaskHandle;
 std::unique_ptr<Game> currentGame;
-bool menuButtonPressed = false;
-bool upButtonPressed = false;
+bool menuButtonPressed = true;
+unsigned long previousMillis = 0;
 
 void setup() 
 {
-    Serial.begin(9600);
+    Serial.begin(250000);
+    EEPROM.begin(512);
+
+    xTaskCreatePinnedToCore(
+        inputLoop,
+        "Input",
+        10000,
+        NULL,
+        1,
+        &core0TaskHandle,
+        0
+    );
 
     pinMode(RIGHT_PIN, INPUT_PULLUP);
     pinMode(UP_PIN, INPUT_PULLUP);
@@ -33,31 +46,32 @@ void setup()
     pinMode(ACTION_PIN, INPUT_PULLUP);
     pinMode(MENU_PIN, INPUT_PULLUP);
 
-    xTaskCreatePinnedToCore(
-        inputLoop,
-        "Input",
-        10000,
-        NULL,
-        3,
-        &core0TaskHandle,
-        1
-    );
+    randomSeed(analogRead(0));
 
     DisplayManager::initialize();
-    currentGame = std::unique_ptr<FlappyBird>(new FlappyBird(1));
 }
+
 void loop()
-{ //ChatGPT -_-
-    auto startTime = std::chrono::steady_clock::now();
-
-    currentGame->update();
-
-    auto endTime = std::chrono::steady_clock::now();
-    auto update_duration = endTime - startTime;
-
-    if (update_duration < target_frame_duration) {
-        std::this_thread::sleep_for(target_frame_duration - update_duration);
+{
+    if (menuButtonPressed) {
+        if (currentGame != nullptr) {
+            currentGame->onGameClosed();
+        }
+        currentGame = std::unique_ptr<Game>(new FlappyBird(1));
+        menuButtonPressed = false;
     }
+
+    unsigned long currentMillis = millis();
+    unsigned long deltaTime = currentMillis - previousMillis;
+
+    currentGame->update(deltaTime);
+
+    previousMillis = currentMillis;
+}
+
+void setCurrentGame(std::unique_ptr<Game> newGame) 
+{
+    currentGame = std::move(newGame);
 }
 
 void inputLoop(void * parameter)

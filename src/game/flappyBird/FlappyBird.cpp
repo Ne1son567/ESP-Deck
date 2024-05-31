@@ -1,9 +1,9 @@
-#include "game/FlappyBird/FlappyBird.hpp"
+#include "game/flappyBird/FlappyBird.hpp"
 #include "display/DisplayManager.hpp"
-#include "bitmap/Floor.hpp"
-#include "bitmap/background.hpp"
-#include "bitmap/gameover.hpp"
-#include "bitmap/message.hpp"
+#include "bitmap/flappyBird/Floor.hpp"
+#include "bitmap/flappyBird/background.hpp"
+#include "bitmap/flappyBird/gameover.hpp"
+#include "bitmap/flappyBird/message.hpp"
 #include <TFT_eSPI.h>
 #include <list>
 #include <random>
@@ -24,11 +24,11 @@ FlappyBird::FlappyBird(int difficulty):
     switch (difficulty)
     {
     case 1:
-        myBird = Bird(0.2, 10, 5);
-        randomGap = std::uniform_int_distribution<>(50, 70);
+        myBird = Bird(0.15, 5, 4);
+        randomGap = std::uniform_int_distribution<>(70, 80);
         randomYPos = std::uniform_int_distribution<>(95, 155);
         speed = 2;
-        spawnSpeed = 100;
+        spawnSpeed = 150;
         break;
     case 2:
         myBird = Bird(0.2, 10, 5);
@@ -55,33 +55,37 @@ FlappyBird::FlappyBird(int difficulty):
     updateScore();
     renderTAPmessage(TapMessageXPos, TapMessageYPos);
 }
-void FlappyBird::update() {
-  
-    if (!gameover) {
-        
-        myBird.update();
-        updatePillars();
-        createPillar();
-        deletePillar();
+void FlappyBird::update(float deltaTime) {
+    accumulatedTime += deltaTime/1000.0f;
 
-        Pillar& pillar = pillars.front();
-        if (pillar.getXPos() + pillar.getXSize() == myBird.getXPos() + myBird.getXSize()){
-            
-            score++;
-            updateScore();
+    while (accumulatedTime >= FIXED_TIMESTEP) {
+        if (!gameover) {
+        
+            myBird.update();
+            updatePillars();
+            createPillar();
+            deletePillar();
+
+            Pillar& pillar = pillars.front();
+            if (pillar.getXPos() + pillar.getXSize() == myBird.getXPos() + myBird.getXSize()){
+                
+                score++;
+                updateScore();
+            }
+            if(myBird.getYPos() >= 250 - myBird.getYSize() && gameover != true) {
+                gameOver();
+            }
+            if (pillars.size() != 0 && checkCollision(pillar, myBird))
+            {
+                gameOver();
+            }
+        } else 
+        {  
+            if (upbutton && gameover) { 
+                restartGame();
+            }
         }
-        if(myBird.getYPos() >= 250 - myBird.getYSize() && gameover != true) {
-            gameOver();
-        }
-        if (pillars.size() != 0 && checkCollision(pillar, myBird))
-        {
-            gameOver();
-        }
-    } else 
-    {  
-        if (upbutton && gameover) { 
-            restartGame();
-        }
+        accumulatedTime -= FIXED_TIMESTEP;
     }
 }
 void FlappyBird::gameOver()
@@ -90,7 +94,7 @@ void FlappyBird::gameOver()
     //DisplayManager::getDisplay().drawString("-GAME OVER-", 170, 290);
     DisplayManager::getDisplay().pushImage(0, 250, 480, 70, Floor);
     
-    DisplayManager::getDisplay().pushImage(170, 279, 192, 42, gameoverBitmap);
+    //DisplayManager::getDisplay().pushImage(170, 279, 192, 42, gameoverBitmap);
    
     updateScore();
     gameOverAnimation();
@@ -201,4 +205,8 @@ bool FlappyBird::checkCollision(Pillar& rect1,  Bird& rect2) {
         return false;
     }
     return true;
+}
+void FlappyBird::onGameClosed()
+{
+
 }
