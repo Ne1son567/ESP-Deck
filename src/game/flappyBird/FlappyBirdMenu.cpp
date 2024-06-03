@@ -1,12 +1,13 @@
 #include "game/flappyBird/FlappyBirdMenu.hpp"
-#include "bitmap/flappyBird/blueSkyBackgroundBitmap.hpp"
+#include "bitmap/flappyBird/SkyBackgroundBitmap.hpp"
+#include "bitmap/TrophyGoldenBitmap.hpp"
+#include "bitmap/flappyBird/FloorBitmap.hpp"
 #include "core/Core.hpp"
 #include <Arduino.h>
 #include <memory>
 #include "game/flappyBird/FlappyBird.hpp"
 #include "font/Fonts.hpp"
 #include "display/DisplayManager.hpp"
-#include "bitmap/TrophyGoldenBitmap.hpp"
 #include <game/menu/Menu.hpp>
 #include "eeprom/EepromManager.hpp"
 
@@ -20,35 +21,36 @@ void FlappyBirdMenu::renderMenu()
     menuIndex = 0;
     menuButtonAmount = 3;
 
-    backgroundSprite.pushImage(-60, -1, 480, 320, blueSkyBackgroundBitmap);
+    backgroundSprite.pushImage(-60, -1, 480, 250, skyBackgroundBitmap);
+    backgroundSprite.pushImage(-60, 249, 480, 70, floorBitmap);
     backgroundSprite.pushSprite(60, 1);
 
     TFT_eSPI& display = DisplayManager::getDisplay();
     display.setFreeFont(FF24);
-    display.setTextColor(0x576a);
+    display.setTextColor(TFT_DARKGREY);
     //display.drawString("FlappyBird", 125, 40);
     DisplayManager::resetFont();
-    display.fillRoundRect(310, 135, 100, 40, 10, 0xFEE0);
-    display.fillRoundRect(150, 130, 180, 50, 10, TFT_ORANGE);
+    display.fillRoundRect(310, 135, 150, 40, 10, 0xFEE0);
+    display.fillRoundRect(150, 130, 180, 50, 10, TFT_WHITE);
     display.pushImage(330, 138, 35, 35, trophyGoldenBitmap);
     display.drawString("Easy", 178, 139);
 
-    display.fillRoundRect(310, 195, 100, 40, 10, 0xFEE0);
-    display.fillRoundRect(150, 190, 180, 50, 10, TFT_ORANGE);
+    display.fillRoundRect(310, 195, 150, 40, 10, 0xFEE0);
+    display.fillRoundRect(150, 190, 180, 50, 10, TFT_WHITE);
     display.pushImage(330, 198, 35, 35, trophyGoldenBitmap);
-    display.drawString("medium", 182, 199);
+    display.drawString("Normal", 182, 199);
 
-    display.fillRoundRect(310, 255, 100, 40, 10, 0xFEE0);
-    display.fillRoundRect(150, 250, 180, 50, 10, TFT_ORANGE);
+    display.fillRoundRect(310, 255, 150, 40, 10, 0xFEE0);
+    display.fillRoundRect(150, 250, 180, 50, 10, TFT_WHITE);
     display.pushImage(330, 258, 35, 35, trophyGoldenBitmap);
     display.drawString("Hard", 185, 259);
 
     int highscores[] = {
-        EepromManager::readInt8(EepromManager::EEPROM_SNAKE_CLASSIC_HIGHSCORE_ADDR_INT8),
-        EepromManager::readInt8(EepromManager::EEPROM_SNAKE_SPEED_HIGHSCORE_ADDR_INT8),
-        EepromManager::readInt8(EepromManager::EEPROM_SNAKE_RISING_HIGHSCORE_ADDR_INT8)
+        EepromManager::readInt16(EepromManager::EEPROM_FlappyBird_EASY_HIGHSCORE_ADDR_INT16),
+        EepromManager::readInt16(EepromManager::EEPROM_FlappyBird_NORMAL_HIGHSCORE_ADDR_INT16),
+        EepromManager::readInt16(EepromManager::EEPROM_FlappyBird_HARD_HIGHSCORE_ADDR_INT16)
     };
-
+   
     String highscoreStrings[] = {
         String(highscores[0]),
         String(highscores[1]),
@@ -63,7 +65,7 @@ void FlappyBirdMenu::renderMenu()
         }
     }
 
-    display.setTextColor(0xF440);
+    display.setTextColor(TFT_DARKGREY);
     display.setTextSize(1);
     display.setFreeFont(FF26);
     display.drawString(highscoreStrings[0], 364, 146);
@@ -96,19 +98,19 @@ void FlappyBirdMenu::advanceSelectionUp()
 void FlappyBirdMenu::unhighlightSelectedButton() 
 {
     TFT_eSPI& display = DisplayManager::getDisplay();
-    display.drawRoundRect(150, menuIndex*60 + 130, 180, 50, 10, 0x3366);
-    display.drawRoundRect(151, menuIndex*60 + 131, 178, 48, 8, 0x3366);
+    display.drawRoundRect(150, menuIndex*60 + 130, 180, 50, 10, TFT_WHITE);
+    display.drawRoundRect(151, menuIndex*60 + 131, 178, 48, 8, TFT_WHITE);
 }
 
 void FlappyBirdMenu::highlightSelectedButton() 
 {
     TFT_eSPI& display = DisplayManager::getDisplay();
-    display.drawRoundRect(150, menuIndex*60 + 130, 180, 50, 10, 0x576a);
-    display.drawRoundRect(151, menuIndex*60 + 131, 178, 48, 8, 0x576a);
+    display.drawRoundRect(150, menuIndex*60 + 130, 180, 50, 10, TFT_BLACK);
+    display.drawRoundRect(151, menuIndex*60 + 131, 178, 48, 8, TFT_BLACK);
 }
 
 void FlappyBirdMenu::executeSelected()
 {
-    std::unique_ptr<Game> newGame(new FlappyBird(1));
+    std::unique_ptr<Game> newGame(new FlappyBird(menuIndex));
     setCurrentGame(std::move(newGame));
 }

@@ -1,34 +1,47 @@
-#include "game/flappyBird/FlappyBird.hpp"
+#include "game/flappyBird/flappyBird.hpp"
 #include "display/DisplayManager.hpp"
-#include "bitmap/flappyBird/Floor.hpp"
-#include "bitmap/flappyBird/background.hpp"
-#include "bitmap/flappyBird/gameover.hpp"
-#include "bitmap/flappyBird/message.hpp"
+#include "bitmap/flappyBird/FloorBitmap.hpp"
+#include "bitmap/flappyBird/SkyBackgroundBitmap.hpp"
+#include "bitmap/flappyBird/MessageBitmap.hpp"
 #include <TFT_eSPI.h>
 #include <list>
 #include <random>
 #include <string>
-
+#include <chrono>
+#include <thread>
 bool upbutton = false;
 bool gameover = true;
 int spawnCounter = 0;
-
+const std::chrono::duration<double, std::ratio<1, 55>> target_frame_duration(1);//55
 FlappyBird::FlappyBird(int difficulty):
     
     gen(rd()),
     myBird(0.2, 10, 5),
     score(0),
-    TapMessageXPos(150),
-    TapMessageYPos(180)
+    TapMessageXPos(180),
+    TapMessageYPos(185),
+    difficulty(difficulty)
 {   
+    /*EepromManager::writeInt16(4,0);
+    EepromManager::writeInt16(5,0);
+    EepromManager::writeInt16(6,0);*/
     switch (difficulty)
     {
-    case 1:
+    case 0:
         myBird = Bird(0.15, 5, 4);
         randomGap = std::uniform_int_distribution<>(70, 80);
         randomYPos = std::uniform_int_distribution<>(95, 155);
         speed = 2;
         spawnSpeed = 150;
+        difficultyText = "Easy";
+        break;
+    case 1:
+        myBird = Bird(0.2, 10, 5);
+        randomGap = std::uniform_int_distribution<>(50, 70);
+        randomYPos = std::uniform_int_distribution<>(95, 155);
+        speed = 2;
+        spawnSpeed = 100;
+        difficultyText = "Normal";
         break;
     case 2:
         myBird = Bird(0.2, 10, 5);
@@ -36,67 +49,69 @@ FlappyBird::FlappyBird(int difficulty):
         randomYPos = std::uniform_int_distribution<>(95, 155);
         speed = 2;
         spawnSpeed = 100;
-        break;
-    case 3:
-        
+        difficultyText = "Hard";
         break;
     
     default:
         break;
     }
-    
+    highscore = EepromManager::readInt16(FlappyBirdHighscoreAddresses[difficulty]);
     
     DisplayManager::getDisplay().setTextSize(1);
-    DisplayManager::getDisplay().setTextColor(DisplayManager::tft.color565(113, 197, 207), DisplayManager::tft.color565(220, 215, 147));
+    DisplayManager::getDisplay().setTextColor(TFT_DARKGREY);//DisplayManager::tft.color565(6, 220, 0)
     
-    DisplayManager::getDisplay().pushImage(0, 250, 480, 70, Floor);
-    DisplayManager::getDisplay().pushImage(0, 0, 480, 250, background);
+    DisplayManager::getDisplay().pushImage(0, 250, 480, 70, floorBitmap);
+    DisplayManager::getDisplay().pushImage(0, 0, 480, 250, skyBackgroundBitmap);
     myBird.update();
     updateScore();
-    renderTAPmessage(TapMessageXPos, TapMessageYPos);
+    updateHighscore();
+    renderTAPMessage(TapMessageXPos, TapMessageYPos);
 }
 void FlappyBird::update(float deltaTime) {
-    accumulatedTime += deltaTime/1000.0f;
 
-    while (accumulatedTime >= FIXED_TIMESTEP) {
-        if (!gameover) {
-        
-            myBird.update();
-            updatePillars();
-            createPillar();
-            deletePillar();
+    auto startTime = std::chrono::steady_clock::now();
+    if (!gameover) {
+    
+        myBird.update();
+        updatePillars();
+        createPillar();
+        deletePillar();
 
-            Pillar& pillar = pillars.front();
-            if (pillar.getXPos() + pillar.getXSize() == myBird.getXPos() + myBird.getXSize()){
-                
-                score++;
-                updateScore();
-            }
-            if(myBird.getYPos() >= 250 - myBird.getYSize() && gameover != true) {
-                gameOver();
-            }
-            if (pillars.size() != 0 && checkCollision(pillar, myBird))
-            {
-                gameOver();
-            }
-        } else 
-        {  
-            if (upbutton && gameover) { 
-                restartGame();
-            }
+        Pillar& pillar = pillars.front();
+        if (pillar.getXPos() + pillar.getXSize() == myBird.getXPos() + myBird.getXSize()){
+            
+            score++;
+            updateScore();
         }
-        accumulatedTime -= FIXED_TIMESTEP;
+        if(myBird.getYPos() >= 250 - myBird.getYSize() && gameover != true) {
+            gameOver();
+        }
+        if (pillars.size() != 0 && checkCollision(pillar, myBird))
+        {
+            gameOver();
+        }
+    } else 
+    {  
+        if (upbutton && gameover) { 
+            restartGame();
+        }
+    }
+    
+    auto endTime = std::chrono::steady_clock::now();
+    auto update_duration = endTime - startTime;
+    if (update_duration < target_frame_duration) {
+        std::this_thread::sleep_for(target_frame_duration - update_duration);
     }
 }
 void FlappyBird::gameOver()
 {
     gameover = true;
     //DisplayManager::getDisplay().drawString("-GAME OVER-", 170, 290);
-    DisplayManager::getDisplay().pushImage(0, 250, 480, 70, Floor);
-    
-    //DisplayManager::getDisplay().pushImage(170, 279, 192, 42, gameoverBitmap);
+    DisplayManager::getDisplay().pushImage(0, 250, 480, 70, floorBitmap);
+   //DisplayManager::getDisplay().pushImage(170, 279, 192, 42, gameoverBitmap);
    
     updateScore();
+    updateHighscore();
     gameOverAnimation();
     pillars.clear();
 }
@@ -112,11 +127,22 @@ void FlappyBird::gameOverAnimation()
             pillar.gameOverAnimation();
         }
     }
-    renderTAPmessage(TapMessageXPos, TapMessageYPos);
+    renderTAPMessage(TapMessageXPos, TapMessageYPos);
 }
 void FlappyBird::updateScore()
 {
-    DisplayManager::getDisplay().drawString(("Score: " + std::to_string(score)  + "     " ).c_str(),350,290);
+    DisplayManager::getDisplay().fillRect(405, 290, 60, 15, 0xDEB2);
+    DisplayManager::getDisplay().drawString(("Score: " + std::to_string(score)).c_str(),350,290);
+}
+void FlappyBird::updateHighscore() 
+{
+    if (score > highscore) {
+        
+        EepromManager::writeInt16(FlappyBirdHighscoreAddresses[difficulty], score);
+        highscore = score;
+    }
+    DisplayManager::getDisplay().fillRect(70, 290, 60, 15, 0xDEB2);
+    DisplayManager::getDisplay().drawString(difficultyText + ": " + String(highscore), 20, 290);
 }
 void FlappyBird::updatePillars() {
     for (auto& pillar : pillars) {
@@ -145,22 +171,22 @@ void FlappyBird::restartGame()
     gameover = false;
     spawnCounter = 0;
     score = 0;  
-    removeTAPmessage(TapMessageXPos, TapMessageYPos);
+    removeTAPMessage(TapMessageXPos, TapMessageYPos);
     updateScore();
 }
-void FlappyBird::renderTAPmessage(int x, int y)
+void FlappyBird::renderTAPMessage(int x, int y)
 {
     int xS = 114;
     int yS = 36;
     
     std::vector<unsigned short> partialBackgroundVector;
-    std::vector<unsigned short> messageVector(message, message + yS * xS); //von Zeiger bis zu (Zeiger + 1064)
+    std::vector<unsigned short> messageVector(messageBitmap, messageBitmap + yS * xS); //von Zeiger bis zu (Zeiger + 1064)
 
     int index = y * 480 + x;//Start
 
     for (int row = 0; row < xS; row++) {
         
-        partialBackgroundVector.insert(partialBackgroundVector.end(), background + index, background + index + xS);//Zeilenweise 
+        partialBackgroundVector.insert(partialBackgroundVector.end(), skyBackgroundBitmap + index, skyBackgroundBitmap + index + xS);//Zeilenweise 
         index += 480;
     }
     for (int i = 0; i < messageVector.size(); i++) {
@@ -171,7 +197,7 @@ void FlappyBird::renderTAPmessage(int x, int y)
     //DisplayManager::getDisplay().drawString("                          ", 170, 290);
     DisplayManager::getDisplay().pushImage(x, y, xS, yS, messageVector.data());
 }
-void FlappyBird::removeTAPmessage(int x, int y)
+void FlappyBird::removeTAPMessage(int x, int y)
 {
     int xS = 114;
     int yS = 36;
@@ -182,19 +208,25 @@ void FlappyBird::removeTAPmessage(int x, int y)
 
     for (int row = 0; row < xS; row++) {
         
-        partialBackgroundVector.insert(partialBackgroundVector.end(), background + index, background + index + xS);//Zeilenweise 
+        partialBackgroundVector.insert(partialBackgroundVector.end(), skyBackgroundBitmap + index, skyBackgroundBitmap + index + xS);//Zeilenweise 
         index += 480;
     }
     DisplayManager::getDisplay().pushImage(x, y, xS, yS, partialBackgroundVector.data());
 }
 void FlappyBird::keyPressed(int key)
 {
-    myBird.jump();
-    upbutton = true;
+    if(key == 1)
+    {
+        myBird.jump();
+        upbutton = true;
+    }
 }
 void FlappyBird::keyReleased(int key)
 {
-   upbutton = false; 
+    if(key == 1)
+    {
+        upbutton = false; 
+    }
 }
 bool FlappyBird::checkCollision(Pillar& rect1,  Bird& rect2) {
     

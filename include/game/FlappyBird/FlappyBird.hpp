@@ -7,6 +7,8 @@
 #include <Arduino.h>
 #include <random>
 #include <list>
+#include <String>
+#include <eeprom/EepromManager.hpp>
 
 class FlappyBird : public Game
 {
@@ -21,20 +23,28 @@ class FlappyBird : public Game
         Bird myBird;
         int speed;
         int score;
+        int difficulty;
+        int highscore;
         int spawnSpeed;
         int TapMessageYPos;
         int TapMessageXPos;
+        String difficultyText;
         void updatePillars();
         void createPillar();
         void deletePillar();
         void restartGame();
         void gameOver();
         void gameOverAnimation();
-        void renderTAPmessage(int x, int y);
-        void removeTAPmessage(int x, int y);
+        void renderTAPMessage(int x, int y);
+        void removeTAPMessage(int x, int y);
         bool checkCollision(Pillar& rect1, Bird& rect2);
         void updateScore();
-        
+        const int FlappyBirdHighscoreAddresses[3] = {
+            EepromManager::EEPROM_FlappyBird_EASY_HIGHSCORE_ADDR_INT16, //4
+            EepromManager::EEPROM_FlappyBird_NORMAL_HIGHSCORE_ADDR_INT16, //5
+            EepromManager::EEPROM_FlappyBird_HARD_HIGHSCORE_ADDR_INT16 //6 01.06.2024
+        };
+        void updateHighscore();
     public:
         FlappyBird(int difficulty);
         void keyPressed(int key) override;

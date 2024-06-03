@@ -2,6 +2,7 @@
 #define Bird_HPP
 #include <Arduino.h>
 #include <vector>
+#include <TFT_eSPI.h>
 class Bird {
 private:
     int yPos;
@@ -14,6 +15,7 @@ private:
     float jumpHeight;
     int animation;
     int currentSpeed;
+    
 public:
 
     Bird(float gravity, float maxFallSpeed, float jumpHeight);

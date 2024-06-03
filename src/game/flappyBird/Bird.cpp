@@ -1,8 +1,8 @@
 #include "game/flappyBird/Bird.hpp"
 #include <TFT_eSPI.h> 
-#include "bitmap/flappyBird/FlappyBird.hpp"
+#include "bitmap/flappyBird/FlappyBirdBitmap.hpp"
 #include "display/DisplayManager.hpp"
-#include "bitmap/flappyBird/background.hpp"
+#include "bitmap/flappyBird/SkyBackgroundBitmap.hpp"
 
 Bird::Bird(float gravity, float maxFallSpeed, float jumpHeight) : 
     
@@ -35,7 +35,7 @@ void Bird::update()
 void Bird::renderFlappyBird() 
 {
     std::vector<unsigned short> partialBackgroundVector(extractPartialBackground(xPos, yPos, xSize, ySize));
-    std::vector<unsigned short> birdVector(FlappyBird, FlappyBird + ySize * xSize); //von Zeiger bis zu (Zeiger + 1064)
+    std::vector<unsigned short> birdVector(flappyBirdBitmap, flappyBirdBitmap + ySize * xSize); //von Zeiger bis zu (Zeiger + 1064)
     std::vector<unsigned short> birdTrailVector;
     std::vector<unsigned short> resultVector; 
     
@@ -78,7 +78,7 @@ std::vector<unsigned short> Bird::extractPartialBackground(int xPartialBitmap, i
 
     for (int row = 0; row < heightPartialBitmap; row++) {
         
-        partialBackgroundVector.insert(partialBackgroundVector.end(), background + index, background + index + widthPartialBitmap);//Zeilenweise 
+        partialBackgroundVector.insert(partialBackgroundVector.end(), skyBackgroundBitmap + index, skyBackgroundBitmap + index + widthPartialBitmap);//Zeilenweise 
         index += 480;
     }
     return partialBackgroundVector;

@@ -9,6 +9,10 @@ namespace EepromManager
     const int EEPROM_SNAKE_SPEED_HIGHSCORE_ADDR_INT8 = 1;
     const int EEPROM_SNAKE_RISING_HIGHSCORE_ADDR_INT8 = 2;
     const int EEPROM_MERGE_HIGHSCORE_ADDR_INT16 = 3;
+    const int EEPROM_FlappyBird_EASY_HIGHSCORE_ADDR_INT16 = 4;
+    const int EEPROM_FlappyBird_NORMAL_HIGHSCORE_ADDR_INT16 = 5;
+    const int EEPROM_FlappyBird_HARD_HIGHSCORE_ADDR_INT16 = 6;
+
 
     int32_t readInt32(int address);
     int16_t readInt16(int address);

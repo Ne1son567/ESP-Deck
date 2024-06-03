@@ -57,7 +57,7 @@ void loop()
         if (currentGame != nullptr) {
             currentGame->onGameClosed();
         }
-        currentGame = std::unique_ptr<Game>(new FlappyBird(1));
+        currentGame = std::unique_ptr<Game>(new Menu());
         menuButtonPressed = false;
     }
 
