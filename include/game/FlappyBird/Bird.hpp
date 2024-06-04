@@ -19,7 +19,7 @@ private:
 public:
 
     Bird(float gravity, float maxFallSpeed, float jumpHeight);
-    void update();
+    void update(float deltaTime);
     void renderFlappyBird();
     std::vector<unsigned short> extractPartialBackground(int xPartialBitmap, int yPartialBitmap, int widthPartialBitmap, int heightPartialBitmap);
     void gameOverAnimation();

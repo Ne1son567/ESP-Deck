@@ -2,7 +2,7 @@
 #define FLAPPYBIRDMENU_HPP
 
 #include "game/menu/GameMenu.hpp"
-#include "bitmap/flappyBird/flappyBirdIconBitmap.hpp"
+#include "bitmap/flappyBird/FlappyBirdIconBitmap.hpp"
 
 class FlappyBirdMenu : public GameMenu 
 {

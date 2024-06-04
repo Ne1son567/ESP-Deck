@@ -4,7 +4,8 @@
 #include <thread>
 #include "game/Game.hpp"
 #include "game/menu/Menu.hpp"
-#include "game/FlappyBird/FlappyBird.hpp"
+#include "game/flappyBird/FlappyBird.hpp"
+#include "game/lightsOut/LightsOut.hpp"
 #include "display/DisplayManager.hpp"
 #include "game/GameFactory.hpp"
 #include "TFT_eSPI.h"
@@ -57,7 +58,7 @@ void loop()
         if (currentGame != nullptr) {
             currentGame->onGameClosed();
         }
-        currentGame = std::unique_ptr<Game>(new Menu());
+        currentGame = std::unique_ptr<Game>(new LightsOut(0));
         menuButtonPressed = false;
     }
 

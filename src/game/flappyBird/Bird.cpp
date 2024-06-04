@@ -11,6 +11,7 @@ Bird::Bird(float gravity, float maxFallSpeed, float jumpHeight) :
     xSize(38),
     ySize(28),
     speed(0),
+    currentSpeed(0),
     gravity(gravity),
     maxFallSpeed(maxFallSpeed),
     jumpHeight(jumpHeight),
@@ -18,7 +19,7 @@ Bird::Bird(float gravity, float maxFallSpeed, float jumpHeight) :
 {
 
 }
-void Bird::update()
+void Bird::update(float deltaTime)
 {
     currentSpeed = speed;
 

@@ -32,7 +32,7 @@ class FlappyBird : public Game
         void updatePillars();
         void createPillar();
         void deletePillar();
-        void restartGame();
+        void startGame();
         void gameOver();
         void gameOverAnimation();
         void renderTAPMessage(int x, int y);

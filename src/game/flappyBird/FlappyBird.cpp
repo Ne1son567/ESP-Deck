@@ -28,7 +28,7 @@ FlappyBird::FlappyBird(int difficulty):
     switch (difficulty)
     {
     case 0:
-        myBird = Bird(0.15, 5, 4);
+        myBird = Bird(0.2, 5, 4);
         randomGap = std::uniform_int_distribution<>(70, 80);
         randomYPos = std::uniform_int_distribution<>(95, 155);
         speed = 2;
@@ -62,7 +62,7 @@ FlappyBird::FlappyBird(int difficulty):
     
     DisplayManager::getDisplay().pushImage(0, 250, 480, 70, floorBitmap);
     DisplayManager::getDisplay().pushImage(0, 0, 480, 250, skyBackgroundBitmap);
-    myBird.update();
+    myBird.renderFlappyBird();
     updateScore();
     updateHighscore();
     renderTAPMessage(TapMessageXPos, TapMessageYPos);
@@ -72,7 +72,7 @@ void FlappyBird::update(float deltaTime) {
     auto startTime = std::chrono::steady_clock::now();
     if (!gameover) {
     
-        myBird.update();
+        myBird.update(deltaTime);
         updatePillars();
         createPillar();
         deletePillar();
@@ -93,7 +93,7 @@ void FlappyBird::update(float deltaTime) {
     } else 
     {  
         if (upbutton && gameover) { 
-            restartGame();
+            startGame();
         }
     }
     
@@ -166,7 +166,7 @@ void FlappyBird::deletePillar()
         }
     }
 }
-void FlappyBird::restartGame()
+void FlappyBird::startGame()
 {
     gameover = false;
     spawnCounter = 0;
@@ -240,5 +240,8 @@ bool FlappyBird::checkCollision(Pillar& rect1,  Bird& rect2) {
 }
 void FlappyBird::onGameClosed()
 {
-
+    if(score > highscore)
+    {
+        EepromManager::writeInt16(FlappyBirdHighscoreAddresses[difficulty], score);
+    }
 }
