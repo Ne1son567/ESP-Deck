@@ -58,7 +58,7 @@ void loop()
         if (currentGame != nullptr) {
             currentGame->onGameClosed();
         }
-        currentGame = std::unique_ptr<Game>(new LightsOut(0));
+        currentGame = std::unique_ptr<Game>(new LightsOut(1));
         menuButtonPressed = false;
     }
 

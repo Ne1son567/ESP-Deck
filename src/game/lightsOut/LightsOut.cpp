@@ -6,69 +6,174 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <String>
 
 LightsOut::LightsOut(int difficulty):
     gameOver(false),
-    tries(0),
-    cursorX(3),
-    cursorY(3)
+    moves(0),
+    cursorX(2),
+    cursorY(2)
 {   
-   TFT_eSPI& display = DisplayManager::getDisplay();
-   rows = 5;
-   cols = 5;
-   tileSize = 58;
-   gap = 2;
-   edge =  9;
-   lights.resize(rows, std::vector<bool>(cols, false));
-
-   display.fillRect(edge, edge, 302, 302, TFT_DARKGREY);
-   drawCursor(3, 3);
-   createGame();
-   delay(1000);
-   createGame();
-   delay(1000);
-   createGame();
-   delay(1000);
-   createGame();
-   delay(1000);
-   createGame();
-   delay(1000);
+    TFT_eSPI& display = DisplayManager::getDisplay();
+    rows = 5;
+    cols = 5;
+    tileSize = 58;
+    gap = 2;                                            
+    edge =  9;
+    lights.resize(rows, std::vector<bool>(cols, false));
+    
+    display.fillRect(edge, edge, 302, 302, TFT_DARKGREY);
+    Serial.begin(250000);
+    switch (difficulty)
+    {
+    case 0:
+        minCount = 4;
+        maxCount = 4;
+        difficultyText = "easy";
+        break;
+    case 1:
+        minCount = 100;
+        maxCount = 100;
+        difficultyText = "hard";
+        break;
+    
+    default:
+        break;
+    }
+    display.drawString(difficultyText, 320, 60);
+    createGame();
+   
 }
 void LightsOut::createGame()
 {
-    srand(5);
+    moves = 0;
+    updateMoves();
+    hideSolved();
     TFT_eSPI& display = DisplayManager::getDisplay();
-    
     for(int i = 0; i < lights.size(); i++)
     {
         for(int j = 0; j < lights[i].size(); j++)
         {
-            lights[i][j] = rand()  % 2 == 0 ? true : false;; //zahlen zu boolean
-            if(lights[i][j] == false)
+            lights[i][j] = false;
+            display.fillRoundRect((i) * (gap + tileSize) + gap + edge, (j) * (gap + tileSize) + gap + edge, tileSize, tileSize, 0, TFT_BLACK);
+        }
+    }
+    moveCursor(cursorX, cursorY);
+    srand(time(nullptr));
+    
+    for (int i = rand() % (maxCount - minCount + 1) + minCount; i > 0; i--)
+    {
+        inevertAllPossibleOnes(rand() % 5, rand() % 5);
+    }
+}
+void LightsOut::moveCursor(int xIndex, int yIndex)
+{
+    TFT_eSPI& display = DisplayManager::getDisplay();
+    display.drawRect((cursorX) * (tileSize + gap)  + gap + edge - gap, (cursorY) * (tileSize + gap)  + gap + edge - gap,tileSize + gap*2, tileSize + gap*2, TFT_DARKGREY);
+    display.drawRect((cursorX) * (tileSize + gap)  + gap + edge - gap + 1, (cursorY) * (tileSize + gap)  + gap + edge - gap + 1, tileSize + gap*2 - 2, tileSize + gap*2 - 2, TFT_DARKGREY);
+
+    cursorX = xIndex;
+    cursorY = yIndex;
+
+    display.drawRect((xIndex) * (tileSize + gap)  + gap + edge - gap, (yIndex) * (tileSize + gap)  + gap + edge - gap,tileSize + gap*2, tileSize + gap*2, TFT_RED);
+    display.drawRect((xIndex) * (tileSize + gap)  + gap + edge - gap + 1, (yIndex) * (tileSize + gap)  + gap + edge - gap + 1, tileSize + gap*2 - 2, tileSize + gap*2 - 2, TFT_RED);
+}
+void LightsOut::invertOne(int xIndex, int yIndex)
+{
+    TFT_eSPI& display = DisplayManager::getDisplay();
+    
+    if(lights[xIndex][yIndex] == false)
+    {
+        display.fillRect((xIndex) * (gap + tileSize) + gap + edge, (yIndex) * (gap + tileSize) + gap + edge, tileSize, tileSize, TFT_WHITE);
+        lights[xIndex][yIndex] = true;
+    }
+    else{
+        display.fillRect((xIndex) * (gap + tileSize) + gap + edge, (yIndex) * (gap + tileSize) + gap + edge, tileSize, tileSize, TFT_BLACK);
+        lights[xIndex][yIndex] = false;
+    }
+}
+void LightsOut::checkWin()
+{
+    for (int i = 0; i < lights.size(); i++)
+    {
+        for(int j = 0; j < lights[i].size(); j++)
+        {
+            if (lights[i][j] == true)
             {
-                display.fillRoundRect((i) * (gap + tileSize) + gap + edge, (j) * (gap + tileSize) + gap + edge, tileSize, tileSize, 0, TFT_BLACK);
-            }
-            else{
-                display.fillRoundRect((i) * (gap + tileSize) + gap + edge, (j) * (gap + tileSize) + gap + edge, tileSize, tileSize, 0, TFT_WHITE);
+                return;
             }
         }
     }
-}
-void LightsOut::drawCursor(int xIndex, int yIndex)
-{
-    TFT_eSPI& display = DisplayManager::getDisplay();
-    display.drawRect((xIndex - 1) * (tileSize + gap)  + gap + edge - gap, (yIndex - 1) * (tileSize + gap)  + gap + edge - gap,tileSize + gap*2, tileSize + gap*2, TFT_RED);
-    display.drawRect((xIndex - 1) * (tileSize + gap)  + gap + edge - gap + 1, (yIndex - 1) * (tileSize + gap)  + gap + edge - gap + 1, tileSize + gap*2 - 2, tileSize + gap*2 - 2, TFT_RED);
-    
+    gameOver = true;
+    showSolved();
 }
 void LightsOut::update(float deltaTime) 
 {
-
+    
+}
+void LightsOut::inevertAllPossibleOnes(int xIndex, int yIndex)
+{
+    invertOne(xIndex, yIndex);
+    if(xIndex + 1 < cols)
+        invertOne(xIndex + 1, yIndex);
+    if(xIndex -1 > -1)
+        invertOne(xIndex -1, yIndex);
+    if(yIndex + 1 < rows)
+        invertOne(xIndex, yIndex + 1);
+    if(yIndex -1 > -1)
+        invertOne(xIndex, yIndex - 1);
 }
 void LightsOut::keyPressed(int key) 
 {
-
-
+    if(gameOver == false)
+    {
+        switch (key)
+        {
+        case 1: //Up
+            if(cursorY > 0)
+                moveCursor(cursorX, cursorY - 1);
+            break;
+        case 3: //Down
+            if(cursorY < rows - 1)
+                moveCursor(cursorX, cursorY +1);
+            break;
+        case 0: //Right
+            if(cursorX > 0)
+                moveCursor(cursorX - 1, cursorY);
+            break;
+        case 2: //Left
+            if(cursorX < cols - 1)
+                moveCursor(cursorX + 1, cursorY);
+            break;
+        case 4: //action
+                moves++;
+                updateMoves();
+                inevertAllPossibleOnes(cursorX, cursorY);
+                checkWin();
+            break;
+        default:
+            break;
+        }
+    }else{
+        gameOver = false;
+        createGame();
+    }
+}
+void LightsOut::showSolved()
+{
+    TFT_eSPI& display = DisplayManager::getDisplay();
+    display.drawString("solved", 320, 100);
+}
+void LightsOut::hideSolved()
+{
+    TFT_eSPI& display = DisplayManager::getDisplay();
+    display.fillRect(320, 100, 120, 40, TFT_BLACK);
+}
+void LightsOut::updateMoves()
+{
+    TFT_eSPI& display = DisplayManager::getDisplay();
+    display.fillRect(320, 20, 120, 40, TFT_BLACK);
+    display.drawString(String(moves), 320, 20);
 }
 void LightsOut::keyReleased(int key) 
 {

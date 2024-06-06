@@ -31,14 +31,14 @@ void Bird::update(float deltaTime)
     yPos = yPos - currentSpeed;
     
     renderFlappyBird();
-
+    delay(2);
 }
 void Bird::renderFlappyBird() 
 {
     std::vector<unsigned short> partialBackgroundVector(extractPartialBackground(xPos, yPos, xSize, ySize));
     std::vector<unsigned short> birdVector(flappyBirdBitmap, flappyBirdBitmap + ySize * xSize); //von Zeiger bis zu (Zeiger + 1064)
     std::vector<unsigned short> birdTrailVector;
-    std::vector<unsigned short> resultVector; 
+    std::vector<unsigned short> resultVector;
     
     for (int i = 0; i < birdVector.size(); i++) {
         if (birdVector[i] == 0x7639) {

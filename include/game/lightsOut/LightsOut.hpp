@@ -8,7 +8,7 @@ class LightsOut : public Game
 {
     private:
         bool gameOver;
-        int tries;
+        int moves;
         int cursorX;
         int cursorY;
         int rows;
@@ -16,9 +16,19 @@ class LightsOut : public Game
         int tileSize;
         int gap;
         int edge;
+        int minCount;
+        int maxCount;
+        String difficultyText;
+    
         std::vector<std::vector<bool>> lights;
         void createGame();
-        void drawCursor(int xIndex, int yIndex);
+        void moveCursor(int xIndex, int yIndex);
+        void invertOne(int xIndex, int yIndex);
+        void inevertAllPossibleOnes(int xIndex, int yIndex);
+        void checkWin();
+        void showSolved();
+        void hideSolved();
+        void updateMoves();
     public:
         LightsOut(int difficulty);
         void keyPressed(int key) override;
