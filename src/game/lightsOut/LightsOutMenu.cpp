@@ -32,10 +32,10 @@ void LightsOutMenu::renderMenu()
     display.drawString("LightsOut", 145, 40);
     
     display.fillRoundRect(150, 130, 200, 50, 10, TFT_LIGHTGREY);
-    display.drawString("Possible", 150, 139);
+    display.drawString("Easy", 180, 131);
 
     display.fillRoundRect(150, 210, 200, 50, 10, TFT_LIGHTGREY);
-    display.drawString("Difficult", 160, 219);
+    display.drawString("Difficult", 160, 217);
 
     highlightSelectedButton();
     DisplayManager::resetFont();

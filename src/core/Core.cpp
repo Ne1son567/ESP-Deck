@@ -33,7 +33,7 @@ void setup()
     xTaskCreatePinnedToCore(
         inputLoop,
         "Input",
-        12000,
+        20000,
         NULL,
         1,
         &core0TaskHandle,

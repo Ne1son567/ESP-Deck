@@ -32,18 +32,27 @@ void FlappyBirdMenu::renderMenu()
     DisplayManager::resetFont();
     display.setFreeFont(FF22);
     display.setTextSize(1);
-    display.fillRoundRect(290, 135, 150, 40, 10, 0xFEE0);
+    display.fillRoundRect(290, 135, 150, 40, 10, TFT_BLACK);
+    display.fillRoundRect(290, 137, 148, 36, 10, 0xFEE0);
     display.fillRoundRect(130, 130, 180, 50, 10, TFT_DARKGREY);
+    display.drawRoundRect(130, 130, 180, 50, 10, TFT_BLACK);
+    display.drawRoundRect(131, 131, 178, 48, 8, TFT_BLACK);
     display.pushImage(310, 138, 35, 35, trophyGoldenBitmap);
     display.drawString("Easy", 184, 146);
 
-    display.fillRoundRect(290, 195, 150, 40, 10, 0xFEE0);
+    display.fillRoundRect(290, 195, 150, 40, 10, TFT_BLACK);
+    display.fillRoundRect(290, 197, 148, 36, 10, 0xFEE0);
     display.fillRoundRect(130, 190, 180, 50, 10, TFT_DARKGREY);
+    display.drawRoundRect(130, 60 + 130, 180, 50, 10, TFT_BLACK);
+    display.drawRoundRect(131, 60 + 131, 178, 48, 8, TFT_BLACK);
     display.pushImage(310, 198, 35, 35, trophyGoldenBitmap);
     display.drawString("Normal", 172, 208);
 
-    display.fillRoundRect(290, 255, 150, 40, 10, 0xFEE0);
+    display.fillRoundRect(290, 255, 150, 40, 10, TFT_BLACK);
+    display.fillRoundRect(290, 257, 148, 36, 10, 0xFEE0);
     display.fillRoundRect(130, 250, 180, 50, 10, TFT_DARKGREY);
+    display.drawRoundRect(130, 120 + 130, 180, 50, 10, TFT_BLACK);
+    display.drawRoundRect(131, 120 + 131, 178, 48, 8, TFT_BLACK);
     display.pushImage(310, 258, 35, 35, trophyGoldenBitmap);
     display.drawString("Fast", 187, 266);
 

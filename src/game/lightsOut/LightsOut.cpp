@@ -3,6 +3,7 @@
 #include "game/lightsOut/LightsOut.hpp"
 #include "bitmap/lightsOut/LightsOutBackgroundBitmap.hpp"
 #include "display/DisplayManager.hpp"
+#include "font/Fonts.hpp"
 #include <TFT_eSPI.h>
 
 #include <stdlib.h>
@@ -17,6 +18,8 @@ LightsOut::LightsOut(int difficulty):
 {   
     DisplayManager::resetFont();
     TFT_eSPI& display = DisplayManager::getDisplay();
+    display.setFreeFont(FF32);
+    display.setTextSize(1);
     display.setTextColor(TFT_WHITE);
     rows = 5;
     cols = 5;
@@ -37,13 +40,14 @@ LightsOut::LightsOut(int difficulty):
     case 1:
         minCount = 100;
         maxCount = 100;
-        difficultyText = "hard";
+        difficultyText = "difficult";
         break;
     
     default:
         break;
     }
-    display.drawString(difficultyText, 320, 60);
+    
+    display.drawString(difficultyText, 310, 70);
     createGame();
    
 }
@@ -165,11 +169,11 @@ void LightsOut::keyPressed(int key)
 void LightsOut::showSolved()
 {
     TFT_eSPI& display = DisplayManager::getDisplay();
-    display.drawString("solved", 320, 100);
+    display.drawString("solved", 320, 125);
 }
 void LightsOut::hideSolved()
 {
-    DisplayManager::renderPartialBitmap(320, 100, 320, 100, 120, 40, 480, lightsOutBackgroundBitmap);
+    DisplayManager::renderPartialBitmap(320, 125, 320, 125, 170, 40, 480, lightsOutBackgroundBitmap);
 }
 void LightsOut::updateMoves()
 {
@@ -183,5 +187,5 @@ void LightsOut::keyReleased(int key)
 }
 void LightsOut::onGameClosed() 
 {
-
+    DisplayManager::resetFont();
 }
