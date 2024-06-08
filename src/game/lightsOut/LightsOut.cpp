@@ -1,6 +1,7 @@
 
 
 #include "game/lightsOut/LightsOut.hpp"
+#include "bitmap/lightsOut/LightsOutBackgroundBitmap.hpp"
 #include "display/DisplayManager.hpp"
 #include <TFT_eSPI.h>
 
@@ -14,16 +15,18 @@ LightsOut::LightsOut(int difficulty):
     cursorX(2),
     cursorY(2)
 {   
+    DisplayManager::resetFont();
     TFT_eSPI& display = DisplayManager::getDisplay();
+    display.setTextColor(TFT_WHITE);
     rows = 5;
     cols = 5;
     tileSize = 58;
     gap = 2;                                            
     edge =  9;
     lights.resize(rows, std::vector<bool>(cols, false));
-    
+    display.pushImage(0, 0, 480, 320, lightsOutBackgroundBitmap);
     display.fillRect(edge, edge, 302, 302, TFT_DARKGREY);
-    Serial.begin(250000);
+    
     switch (difficulty)
     {
     case 0:
@@ -138,12 +141,12 @@ void LightsOut::keyPressed(int key)
                 moveCursor(cursorX, cursorY +1);
             break;
         case 0: //Right
-            if(cursorX > 0)
-                moveCursor(cursorX - 1, cursorY);
-            break;
-        case 2: //Left
             if(cursorX < cols - 1)
                 moveCursor(cursorX + 1, cursorY);
+            break;
+        case 2: //Left
+            if(cursorX > 0)
+                moveCursor(cursorX - 1, cursorY);
             break;
         case 4: //action
                 moves++;
@@ -166,13 +169,12 @@ void LightsOut::showSolved()
 }
 void LightsOut::hideSolved()
 {
-    TFT_eSPI& display = DisplayManager::getDisplay();
-    display.fillRect(320, 100, 120, 40, TFT_BLACK);
+    DisplayManager::renderPartialBitmap(320, 100, 320, 100, 120, 40, 480, lightsOutBackgroundBitmap);
 }
 void LightsOut::updateMoves()
 {
     TFT_eSPI& display = DisplayManager::getDisplay();
-    display.fillRect(320, 20, 120, 40, TFT_BLACK);
+    DisplayManager::renderPartialBitmap(320, 20, 320, 20, 120, 40, 480, lightsOutBackgroundBitmap);
     display.drawString(String(moves), 320, 20);
 }
 void LightsOut::keyReleased(int key) 

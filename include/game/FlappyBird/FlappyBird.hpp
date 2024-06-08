@@ -13,12 +13,15 @@
 class FlappyBird : public Game
 {
     private:
+        bool gameover;
+        int spawnCounter;
         const float FIXED_TIMESTEP = 0.016f; // 16 Millisekunden
         float accumulatedTime = 0.0f;
         std::random_device rd;
         std::mt19937 gen;
         std::uniform_int_distribution<> randomGap;
         std::uniform_int_distribution<> randomYPos;
+        int pillarXSize;
         std::list<Pillar> pillars;
         Bird myBird;
         int speed;
@@ -40,9 +43,9 @@ class FlappyBird : public Game
         bool checkCollision(Pillar& rect1, Bird& rect2);
         void updateScore();
         const int FlappyBirdHighscoreAddresses[3] = {
-            EepromManager::EEPROM_FlappyBird_EASY_HIGHSCORE_ADDR_INT16, //4
-            EepromManager::EEPROM_FlappyBird_NORMAL_HIGHSCORE_ADDR_INT16, //5
-            EepromManager::EEPROM_FlappyBird_HARD_HIGHSCORE_ADDR_INT16 //6 01.06.2024
+            EepromManager::EEPROM_FLAPPYBIRD_EASY_HIGHSCORE_ADDR_INT16, //4
+            EepromManager::EEPROM_FLAPPYBIRD_NORMAL_HIGHSCORE_ADDR_INT16, //5
+            EepromManager::EEPROM_FLAPPYBIRD_HARD_HIGHSCORE_ADDR_INT16 //6 01.06.2024
         };
         void updateHighscore();
     public:

@@ -10,12 +10,13 @@
 #include <chrono>
 #include <thread>
 bool upbutton = false;
-bool gameover = true;
-int spawnCounter = 0;
+
 const std::chrono::duration<double, std::ratio<1, 55>> target_frame_duration(1);//55
 FlappyBird::FlappyBird(int difficulty):
     
     gen(rd()),
+    gameover(true),
+    spawnCounter(0),
     myBird(0.2, 10, 5),
     score(0),
     TapMessageXPos(180),
@@ -28,9 +29,10 @@ FlappyBird::FlappyBird(int difficulty):
     switch (difficulty)
     {
     case 0:
-        myBird = Bird(0.2, 5, 4);
+        myBird = Bird(0.2, 5, 5);
         randomGap = std::uniform_int_distribution<>(70, 80);
         randomYPos = std::uniform_int_distribution<>(95, 155);
+        pillarXSize = 58;
         speed = 2;
         spawnSpeed = 150;
         difficultyText = "Easy";
@@ -39,17 +41,19 @@ FlappyBird::FlappyBird(int difficulty):
         myBird = Bird(0.2, 10, 5);
         randomGap = std::uniform_int_distribution<>(50, 70);
         randomYPos = std::uniform_int_distribution<>(95, 155);
-        speed = 2;
-        spawnSpeed = 100;
+        pillarXSize = 58;
+        speed = 4;
+        spawnSpeed = 70;
         difficultyText = "Normal";
         break;
     case 2:
-        myBird = Bird(0.2, 10, 5);
-        randomGap = std::uniform_int_distribution<>(50, 70);
-        randomYPos = std::uniform_int_distribution<>(95, 155);
-        speed = 2;
-        spawnSpeed = 100;
-        difficultyText = "Hard";
+        myBird = Bird(0.4, 15, 6);
+        randomGap = std::uniform_int_distribution<>(40, 60);
+        randomYPos = std::uniform_int_distribution<>(75, 175);
+        pillarXSize = 40;
+        speed = 9;
+        spawnSpeed = 40;
+        difficultyText = "Fast";
         break;
     
     default:
@@ -78,9 +82,9 @@ void FlappyBird::update(float deltaTime) {
         deletePillar();
 
         Pillar& pillar = pillars.front();
-        if (pillar.getXPos() + pillar.getXSize() == myBird.getXPos() + myBird.getXSize()){
+        if (pillar.getXPos() + pillar.getXSize() <= myBird.getXPos() + myBird.getXSize() && pillar.getXPos() + pillar.getXSize() >= myBird.getXPos() + myBird.getXSize() - 10){
             
-            score++;
+            score += pillar.redeemScorePoints();
             updateScore();
         }
         if(myBird.getYPos() >= 250 - myBird.getYSize() && gameover != true) {
@@ -154,7 +158,7 @@ void FlappyBird::createPillar() {
     spawnCounter++;
     if (spawnCounter % spawnSpeed == 0) {
         
-        pillars.push_back(Pillar(randomYPos(gen), randomGap(gen), speed)); 
+        pillars.push_back(Pillar(randomYPos(gen), randomGap(gen), speed, pillarXSize)); 
     }
 }
 void FlappyBird::deletePillar()

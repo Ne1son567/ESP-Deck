@@ -33,7 +33,7 @@ void setup()
     xTaskCreatePinnedToCore(
         inputLoop,
         "Input",
-        10000,
+        12000,
         NULL,
         1,
         &core0TaskHandle,
@@ -58,7 +58,7 @@ void loop()
         if (currentGame != nullptr) {
             currentGame->onGameClosed();
         }
-        currentGame = std::unique_ptr<Game>(new LightsOut(1));
+        currentGame = std::unique_ptr<Game>(new Menu());
         menuButtonPressed = false;
     }
 

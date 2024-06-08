@@ -3,18 +3,18 @@
 #include "display/DisplayManager.hpp"
 #include "bitmap/flappyBird/SkyBackgroundBitmap.hpp"
 
-Pillar::Pillar(int yPos, int gap, int speed) :
+Pillar::Pillar(int yPos, int gap, int speed, int xSize) :
     xPos(480),
     yPos(yPos),
-    xSize(58),
+    xSize(xSize),//58
     ySize(200),
     gap(gap),
     speed(speed),
-    
+    devalued(false),
     openingXSize(xSize + 6),
     openingYSize(15)
 {
-
+   
 }
 void Pillar::updatePillar()
 {
@@ -56,7 +56,15 @@ void Pillar::gameOverAnimation()
         DisplayManager::tft.drawFastHLine(xPos - ((openingXSize-xSize)/2), yPos + gap -1, openingXSize, TFT_BLACK);
     }
 }
-
+int Pillar::redeemScorePoints()
+{
+    if(devalued == false)
+    {
+        devalued = true;
+        return 1;
+    }
+    return 0;
+}
 int Pillar::getXPos(){
     return xPos;
 }

@@ -1,6 +1,6 @@
 #include "game/flappyBird/Bird.hpp"
 #include <TFT_eSPI.h> 
-#include "bitmap/flappyBird/FlappyBirdBitmap.hpp"
+#include "bitmap/flappyBird/BirdBitmap.hpp"
 #include "display/DisplayManager.hpp"
 #include "bitmap/flappyBird/SkyBackgroundBitmap.hpp"
 
@@ -36,7 +36,7 @@ void Bird::update(float deltaTime)
 void Bird::renderFlappyBird() 
 {
     std::vector<unsigned short> partialBackgroundVector(extractPartialBackground(xPos, yPos, xSize, ySize));
-    std::vector<unsigned short> birdVector(flappyBirdBitmap, flappyBirdBitmap + ySize * xSize); //von Zeiger bis zu (Zeiger + 1064)
+    std::vector<unsigned short> birdVector(birdBitmap, birdBitmap + ySize * xSize); //von Zeiger bis zu (Zeiger + 1064)
     std::vector<unsigned short> birdTrailVector;
     std::vector<unsigned short> resultVector;
     
@@ -90,7 +90,7 @@ void Bird::gameOverAnimation()
     if(yPos < 119)
     {
         yPos++;
-        if(yPos < 0 - ySize){ //Zu weit oben
+        if(yPos < 0 - ySize){
             yPos = 120;
         }
         currentSpeed = -1;
@@ -105,6 +105,11 @@ void Bird::gameOverAnimation()
             renderFlappyBird();
         }
     }
+    else
+    {
+        renderFlappyBird();
+    }
+    
 }
 void Bird::jump()
 {

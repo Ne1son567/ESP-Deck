@@ -26,29 +26,31 @@ void FlappyBirdMenu::renderMenu()
     backgroundSprite.pushSprite(60, 1);
 
     TFT_eSPI& display = DisplayManager::getDisplay();
-    display.setFreeFont(FF24);
-    display.setTextColor(TFT_DARKGREY);
+    
+    display.setTextColor(TFT_WHITE);
     //display.drawString("FlappyBird", 125, 40);
     DisplayManager::resetFont();
-    display.fillRoundRect(310, 135, 150, 40, 10, 0xFEE0);
-    display.fillRoundRect(150, 130, 180, 50, 10, TFT_WHITE);
-    display.pushImage(330, 138, 35, 35, trophyGoldenBitmap);
-    display.drawString("Easy", 178, 139);
+    display.setFreeFont(FF22);
+    display.setTextSize(1);
+    display.fillRoundRect(290, 135, 150, 40, 10, 0xFEE0);
+    display.fillRoundRect(130, 130, 180, 50, 10, TFT_DARKGREY);
+    display.pushImage(310, 138, 35, 35, trophyGoldenBitmap);
+    display.drawString("Easy", 184, 146);
 
-    display.fillRoundRect(310, 195, 150, 40, 10, 0xFEE0);
-    display.fillRoundRect(150, 190, 180, 50, 10, TFT_WHITE);
-    display.pushImage(330, 198, 35, 35, trophyGoldenBitmap);
-    display.drawString("Normal", 182, 199);
+    display.fillRoundRect(290, 195, 150, 40, 10, 0xFEE0);
+    display.fillRoundRect(130, 190, 180, 50, 10, TFT_DARKGREY);
+    display.pushImage(310, 198, 35, 35, trophyGoldenBitmap);
+    display.drawString("Normal", 172, 208);
 
-    display.fillRoundRect(310, 255, 150, 40, 10, 0xFEE0);
-    display.fillRoundRect(150, 250, 180, 50, 10, TFT_WHITE);
-    display.pushImage(330, 258, 35, 35, trophyGoldenBitmap);
-    display.drawString("Hard", 185, 259);
+    display.fillRoundRect(290, 255, 150, 40, 10, 0xFEE0);
+    display.fillRoundRect(130, 250, 180, 50, 10, TFT_DARKGREY);
+    display.pushImage(310, 258, 35, 35, trophyGoldenBitmap);
+    display.drawString("Fast", 187, 266);
 
     int highscores[] = {
-        EepromManager::readInt16(EepromManager::EEPROM_FlappyBird_EASY_HIGHSCORE_ADDR_INT16),
-        EepromManager::readInt16(EepromManager::EEPROM_FlappyBird_NORMAL_HIGHSCORE_ADDR_INT16),
-        EepromManager::readInt16(EepromManager::EEPROM_FlappyBird_HARD_HIGHSCORE_ADDR_INT16)
+        EepromManager::readInt16(EepromManager::EEPROM_FLAPPYBIRD_EASY_HIGHSCORE_ADDR_INT16),
+        EepromManager::readInt16(EepromManager::EEPROM_FLAPPYBIRD_NORMAL_HIGHSCORE_ADDR_INT16),
+        EepromManager::readInt16(EepromManager::EEPROM_FLAPPYBIRD_HARD_HIGHSCORE_ADDR_INT16)
     };
    
     String highscoreStrings[] = {
@@ -98,15 +100,15 @@ void FlappyBirdMenu::advanceSelectionUp()
 void FlappyBirdMenu::unhighlightSelectedButton() 
 {
     TFT_eSPI& display = DisplayManager::getDisplay();
-    display.drawRoundRect(150, menuIndex*60 + 130, 180, 50, 10, TFT_WHITE);
-    display.drawRoundRect(151, menuIndex*60 + 131, 178, 48, 8, TFT_WHITE);
+    display.drawRoundRect(130, menuIndex*60 + 130, 180, 50, 10, TFT_BLACK);
+    display.drawRoundRect(131, menuIndex*60 + 131, 178, 48, 8, TFT_BLACK);
 }
 
 void FlappyBirdMenu::highlightSelectedButton() 
 {
     TFT_eSPI& display = DisplayManager::getDisplay();
-    display.drawRoundRect(150, menuIndex*60 + 130, 180, 50, 10, TFT_BLACK);
-    display.drawRoundRect(151, menuIndex*60 + 131, 178, 48, 8, TFT_BLACK);
+    display.drawRoundRect(130, menuIndex*60 + 130, 180, 50, 10, TFT_WHITE);
+    display.drawRoundRect(131, menuIndex*60 + 131, 178, 48, 8, TFT_WHITE);
 }
 
 void FlappyBirdMenu::executeSelected()
