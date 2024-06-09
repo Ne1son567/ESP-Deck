@@ -6,6 +6,7 @@
 #include "game/menu/Menu.hpp"
 #include "game/flappyBird/FlappyBird.hpp"
 #include "game/lightsOut/LightsOut.hpp"
+#include "game/knight-game/KnightGame.hpp"
 #include "display/DisplayManager.hpp"
 #include "game/GameFactory.hpp"
 #include "TFT_eSPI.h"
@@ -33,11 +34,11 @@ void setup()
     xTaskCreatePinnedToCore(
         inputLoop,
         "Input",
-        20000,
+        10000,
         NULL,
         1,
         &core0TaskHandle,
-        0
+        1
     );
 
     pinMode(RIGHT_PIN, INPUT_PULLUP);
@@ -102,6 +103,6 @@ void inputLoop(void * parameter)
                 }
             }
         }
-        delay(50);
+        delay(20);
     }
 }

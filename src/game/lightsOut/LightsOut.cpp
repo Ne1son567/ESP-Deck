@@ -62,7 +62,7 @@ void LightsOut::createGame()
         for(int j = 0; j < lights[i].size(); j++)
         {
             lights[i][j] = false;
-            display.fillRoundRect((i) * (gap + tileSize) + gap + edge, (j) * (gap + tileSize) + gap + edge, tileSize, tileSize, 0, TFT_BLACK);
+            display.fillRect((i) * (gap + tileSize) + gap + edge, (j) * (gap + tileSize) + gap + edge, tileSize, tileSize, TFT_BLACK);
         }
     }
     moveCursor(cursorX, cursorY);
@@ -70,7 +70,7 @@ void LightsOut::createGame()
     
     for (int i = rand() % (maxCount - minCount + 1) + minCount; i > 0; i--)
     {
-        inevertAllPossibleOnes(rand() % 5, rand() % 5);
+        invertAllPossibleOnes(rand() % 5, rand() % 5, display);
     }
 }
 void LightsOut::moveCursor(int xIndex, int yIndex)
@@ -85,9 +85,9 @@ void LightsOut::moveCursor(int xIndex, int yIndex)
     display.drawRect((xIndex) * (tileSize + gap)  + gap + edge - gap, (yIndex) * (tileSize + gap)  + gap + edge - gap,tileSize + gap*2, tileSize + gap*2, TFT_RED);
     display.drawRect((xIndex) * (tileSize + gap)  + gap + edge - gap + 1, (yIndex) * (tileSize + gap)  + gap + edge - gap + 1, tileSize + gap*2 - 2, tileSize + gap*2 - 2, TFT_RED);
 }
-void LightsOut::invertOne(int xIndex, int yIndex)
+void LightsOut::invertOne(int xIndex, int yIndex, TFT_eSPI& display)
 {
-    TFT_eSPI& display = DisplayManager::getDisplay();
+    
     
     if(lights[xIndex][yIndex] == false)
     {
@@ -118,17 +118,17 @@ void LightsOut::update(float deltaTime)
 {
     
 }
-void LightsOut::inevertAllPossibleOnes(int xIndex, int yIndex)
+void LightsOut::invertAllPossibleOnes(int xIndex, int yIndex, TFT_eSPI& display)
 {
-    invertOne(xIndex, yIndex);
+    invertOne(xIndex, yIndex, display);
     if(xIndex + 1 < cols)
-        invertOne(xIndex + 1, yIndex);
+        invertOne(xIndex + 1, yIndex, display);
     if(xIndex -1 > -1)
-        invertOne(xIndex -1, yIndex);
+        invertOne(xIndex -1, yIndex, display);
     if(yIndex + 1 < rows)
-        invertOne(xIndex, yIndex + 1);
+        invertOne(xIndex, yIndex + 1, display);
     if(yIndex -1 > -1)
-        invertOne(xIndex, yIndex - 1);
+        invertOne(xIndex, yIndex - 1, display);
 }
 void LightsOut::keyPressed(int key) 
 {
@@ -155,11 +155,11 @@ void LightsOut::keyPressed(int key)
         case 4: //action
                 moves++;
                 updateMoves();
-                inevertAllPossibleOnes(cursorX, cursorY);
+                TFT_eSPI& display = DisplayManager::getDisplay();
+                invertAllPossibleOnes(cursorX, cursorY, display);
                 checkWin();
             break;
-        default:
-            break;
+        
         }
     }else{
         gameOver = false;
@@ -173,12 +173,13 @@ void LightsOut::showSolved()
 }
 void LightsOut::hideSolved()
 {
-    DisplayManager::renderPartialBitmap(320, 125, 320, 125, 170, 40, 480, lightsOutBackgroundBitmap);
+    TFT_eSPI& display = DisplayManager::getDisplay();
+    display.fillRect(320,125,170,40, TFT_BLACK);
 }
 void LightsOut::updateMoves()
 {
     TFT_eSPI& display = DisplayManager::getDisplay();
-    DisplayManager::renderPartialBitmap(320, 20, 320, 20, 120, 40, 480, lightsOutBackgroundBitmap);
+    display.fillRect(320,20,120,40, TFT_BLACK);
     display.drawString(String(moves), 320, 20);
 }
 void LightsOut::keyReleased(int key) 

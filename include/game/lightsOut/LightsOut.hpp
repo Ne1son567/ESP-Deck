@@ -4,6 +4,8 @@
 #include "game/Game.hpp"
 #include <Arduino.h>
 #include <vector>
+
+#include <TFT_eSPI.h>
 class LightsOut : public Game
 {
     private:
@@ -23,8 +25,8 @@ class LightsOut : public Game
         std::vector<std::vector<bool>> lights;
         void createGame();
         void moveCursor(int xIndex, int yIndex);
-        void invertOne(int xIndex, int yIndex);
-        void inevertAllPossibleOnes(int xIndex, int yIndex);
+        void invertOne(int xIndex, int yIndex, TFT_eSPI& display);
+        void invertAllPossibleOnes(int xIndex, int yIndex, TFT_eSPI& display);
         void checkWin();
         void showSolved();
         void hideSolved();
