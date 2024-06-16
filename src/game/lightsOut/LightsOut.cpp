@@ -1,5 +1,3 @@
-
-
 #include "game/lightsOut/LightsOut.hpp"
 #include "bitmap/lightsOut/LightsOutBackgroundBitmap.hpp"
 #include "display/DisplayManager.hpp"

@@ -29,14 +29,23 @@ void LightsOutMenu::renderMenu()
     display.setFreeFont(FF32);
     display.setTextSize(1);
     display.setTextColor(TFT_WHITE);
-    display.drawString("LightsOut", 145, 40);
-    
-    display.fillRoundRect(150, 130, 200, 50, 10, TFT_LIGHTGREY);
-    display.drawString("Easy", 180, 131);
+    display.drawString("Lights", 135, 40);
+    display.setTextColor(TFT_PURPLE);
+    display.drawString("Out", 280, 40);
 
-    display.fillRoundRect(150, 210, 200, 50, 10, TFT_LIGHTGREY);
-    display.drawString("Difficult", 160, 217);
+    display.setFreeFont(FF31);
+    display.setTextSize(1);
+    display.setTextColor(TFT_WHITE);
 
+    display.fillRoundRect(150, 130, 200, 50, 10, TFT_BLACK);
+    display.drawString("Easy", 210, 140);
+
+    display.fillRoundRect(150, 210, 200, 50, 10, TFT_BLACK);
+    display.drawString("Difficult", 185, 223);
+
+    advanceSelectionDown();
+    unhighlightSelectedButton();
+    advanceSelectionUp();
     highlightSelectedButton();
     DisplayManager::resetFont();
 }
@@ -63,8 +72,8 @@ void LightsOutMenu::advanceSelectionUp()
 void LightsOutMenu::unhighlightSelectedButton() 
 {
     TFT_eSPI& display = DisplayManager::getDisplay();
-    display.drawRoundRect(150, menuIndex*80 + 130, 200, 50, 10, TFT_LIGHTGREY);
-    display.drawRoundRect(151, menuIndex*80 + 131, 198, 48, 8, TFT_LIGHTGREY);
+    display.drawRoundRect(150, menuIndex*80 + 130, 200, 50, 10, TFT_PURPLE);
+    display.drawRoundRect(151, menuIndex*80 + 131, 198, 48, 8, TFT_PURPLE);
 }
 
 void LightsOutMenu::highlightSelectedButton() 

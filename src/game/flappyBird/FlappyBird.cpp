@@ -23,9 +23,15 @@ FlappyBird::FlappyBird(int difficulty):
     TapMessageYPos(185),
     difficulty(difficulty)
 {   
-    /*EepromManager::writeInt16(4,0);
+    EepromManager::writeInt16(0,0);
+    EepromManager::writeInt16(1,0);
+    EepromManager::writeInt16(2,0);
+    EepromManager::writeInt16(3,0);
     EepromManager::writeInt16(5,0);
-    EepromManager::writeInt16(6,0);*/
+    EepromManager::writeInt16(7,0);
+    EepromManager::writeInt16(9,0);
+
+     
     switch (difficulty)
     {
     case 0:

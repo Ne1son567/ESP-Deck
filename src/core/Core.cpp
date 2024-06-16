@@ -1,17 +1,13 @@
 #include "core/Core.hpp"
+#include <Arduino.h>
 #include <memory>
-#include <chrono>
-#include <thread>
 #include "game/Game.hpp"
 #include "game/menu/Menu.hpp"
-#include "game/flappyBird/FlappyBird.hpp"
-#include "game/lightsOut/LightsOut.hpp"
-#include "game/knight-game/KnightGame.hpp"
-#include "display/DisplayManager.hpp"
+#include "game/snake/Snake.hpp"
 #include "game/GameFactory.hpp"
+#include "display/DisplayManager.hpp"
 #include "TFT_eSPI.h"
 #include <EEPROM.h>
-
 
 #define RIGHT_PIN 9
 #define UP_PIN 10
@@ -28,7 +24,7 @@ unsigned long previousMillis = 0;
 
 void setup() 
 {
-    Serial.begin(115200);
+    Serial.begin(250000);
     EEPROM.begin(512);
 
     xTaskCreatePinnedToCore(
@@ -48,7 +44,7 @@ void setup()
     pinMode(ACTION_PIN, INPUT_PULLUP);
     pinMode(MENU_PIN, INPUT_PULLUP);
 
-    randomSeed(esp_random());
+    randomSeed(analogRead(0));
 
     DisplayManager::initialize();
 }
@@ -59,7 +55,7 @@ void loop()
         if (currentGame != nullptr) {
             currentGame->onGameClosed();
         }
-        currentGame = std::unique_ptr<Game>(new Menu());
+        currentGame.reset(new Menu());
         menuButtonPressed = false;
     }
 
@@ -103,6 +99,6 @@ void inputLoop(void * parameter)
                 }
             }
         }
-        delay(20);
+        delay(50);
     }
 }

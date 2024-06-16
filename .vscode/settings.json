@@ -1,16 +1,17 @@
 {
-    
-    "editor.lineHeight": 18,
-
-    "editor.bracketPairColorization.enabled": true,
-    "editor.guides.bracketPairs": "active",
-
-    "C_Cpp.errorSquiggles": "disabled",
+    "cmake.configureOnOpen": false,
     "files.associations": {
-        "*.embeddedhtml": "html",
         "array": "cpp",
-        "atomic": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "utility": "cpp",
+        "vector": "cpp",
         "*.tcc": "cpp",
+        "deque": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "atomic": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
         "cmath": "cpp",
@@ -23,10 +24,6 @@
         "ctime": "cpp",
         "cwchar": "cpp",
         "cwctype": "cpp",
-        "deque": "cpp",
-        "unordered_map": "cpp",
-        "unordered_set": "cpp",
-        "vector": "cpp",
         "exception": "cpp",
         "algorithm": "cpp",
         "functional": "cpp",
@@ -37,14 +34,10 @@
         "numeric": "cpp",
         "optional": "cpp",
         "random": "cpp",
-        "string": "cpp",
-        "string_view": "cpp",
         "system_error": "cpp",
         "tuple": "cpp",
         "type_traits": "cpp",
-        "utility": "cpp",
         "fstream": "cpp",
-        "initializer_list": "cpp",
         "iomanip": "cpp",
         "iosfwd": "cpp",
         "istream": "cpp",
@@ -56,13 +49,7 @@
         "streambuf": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "iostream": "cpp",
-        "chrono": "cpp",
-        "ratio": "cpp",
-        "thread": "cpp",
-        "list": "cpp"
+        "iostream": "cpp"
     },
-
-
-
+    "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }
