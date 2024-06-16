@@ -188,7 +188,7 @@ void FlappyBird::renderTAPMessage(int x, int y)
 
     int index = y * 480 + x;//Start
 
-    for (int row = 0; row < xS; row++) {
+    for (int row = 0; row < yS; row++) {
         
         partialBackgroundVector.insert(partialBackgroundVector.end(), skyBackgroundBitmap + index, skyBackgroundBitmap + index + xS);//Zeilenweise 
         index += 480;
@@ -198,7 +198,6 @@ void FlappyBird::renderTAPMessage(int x, int y)
             messageVector[i] = partialBackgroundVector[i];
         }
     }                 
-    //DisplayManager::getDisplay().drawString("                          ", 170, 290);
     DisplayManager::getDisplay().pushImage(x, y, xS, yS, messageVector.data());
 }
 void FlappyBird::removeTAPMessage(int x, int y)
@@ -210,7 +209,7 @@ void FlappyBird::removeTAPMessage(int x, int y)
 
     int index = y * 480 + x;//Start
 
-    for (int row = 0; row < xS; row++) {
+    for (int row = 0; row < yS; row++) {
         
         partialBackgroundVector.insert(partialBackgroundVector.end(), skyBackgroundBitmap + index, skyBackgroundBitmap + index + xS);//Zeilenweise 
         index += 480;

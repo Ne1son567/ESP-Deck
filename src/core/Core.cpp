@@ -28,7 +28,7 @@ unsigned long previousMillis = 0;
 
 void setup() 
 {
-    Serial.begin(250000);
+    Serial.begin(115200);
     EEPROM.begin(512);
 
     xTaskCreatePinnedToCore(
@@ -38,7 +38,7 @@ void setup()
         NULL,
         1,
         &core0TaskHandle,
-        1
+        0
     );
 
     pinMode(RIGHT_PIN, INPUT_PULLUP);
@@ -48,7 +48,7 @@ void setup()
     pinMode(ACTION_PIN, INPUT_PULLUP);
     pinMode(MENU_PIN, INPUT_PULLUP);
 
-    randomSeed(analogRead(0));
+    randomSeed(esp_random());
 
     DisplayManager::initialize();
 }
