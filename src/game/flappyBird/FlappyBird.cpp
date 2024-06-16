@@ -64,8 +64,8 @@ FlappyBird::FlappyBird(int difficulty):
     DisplayManager::getDisplay().setTextSize(1);
     DisplayManager::getDisplay().setTextColor(TFT_DARKGREY);//DisplayManager::tft.color565(6, 220, 0)
     
-    DisplayManager::getDisplay().pushImage(0, 250, 480, 70, floorBitmap);
     DisplayManager::getDisplay().pushImage(0, 0, 480, 250, skyBackgroundBitmap);
+    DisplayManager::getDisplay().pushImage(0, 250, 480, 70, floorBitmap);
     myBird.renderFlappyBird();
     updateScore();
     updateHighscore();
@@ -198,6 +198,7 @@ void FlappyBird::renderTAPMessage(int x, int y)
             messageVector[i] = partialBackgroundVector[i];
         }
     }                 
+    //DisplayManager::getDisplay().drawString("                          ", 170, 290);
     DisplayManager::getDisplay().pushImage(x, y, xS, yS, messageVector.data());
 }
 void FlappyBird::removeTAPMessage(int x, int y)
