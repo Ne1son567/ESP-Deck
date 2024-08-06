@@ -11,27 +11,37 @@
 class Snake : public Game
 {
     private:
-        int direction;
-        int lastMovedDirection;
+        enum class Status {
+            EMPTY,
+            FOOD,
+            SNAKE
+        };
+
+        // Highscore addresses from all difficulties
+        const int snakeHighscoreAddresses[3] = {
+            EepromManager::EEPROM_SNAKE_CLASSIC_HIGHSCORE_ADDR_INT8,
+            EepromManager::EEPROM_SNAKE_SPEED_HIGHSCORE_ADDR_INT8,
+            EepromManager::EEPROM_SNAKE_RISING_HIGHSCORE_ADDR_INT8
+        };
+
+        static const int gridX = 12;
+        static const int gridY = 10;
+        static const int offsetX = 10;
+        static const int offsetY = 10;
+        static const int tileSize = 30;
+        Status tiles[gridY][gridX];
+
+        Core::Direction currentDirection;
+        Core::Direction lastMovedDirection;
         int gamemode;
         int highscore;
-        int tiles[10][12];
+        int lastDelayTime;
 
         bool gameOver;
         TFT_eSprite snakeSpriteSheet = TFT_eSprite(&DisplayManager::tft);
         std::vector<Vector2D> snakeTiles;
-        const int snakeHighscoreAddresses[3] = {
-            EepromManager::EEPROM_SNAKE_CLASSIC_HIGHSCORE_ADDR_INT8, 
-            EepromManager::EEPROM_SNAKE_SPEED_HIGHSCORE_ADDR_INT8, 
-            EepromManager::EEPROM_SNAKE_RISING_HIGHSCORE_ADDR_INT8
-        };
 
-        const int gridX = 12;
-        const int gridY = 10;
-        const int offsetX = 10;
-        const int offsetY = 10;
-        const int tileSize = 30;
-
+        // Sprite vector offsets to get to specific sprites on sprite sheet
         const Vector2D SNAKE_HEAD_UP = Vector2D(-90, 0);
         const Vector2D SNAKE_HEAD_LEFT = Vector2D(-90, -30);
         const Vector2D SNAKE_HEAD_RIGHT = Vector2D(-120, 0);
@@ -54,24 +64,35 @@ class Snake : public Game
 
     public:
         Snake(int gamemode);
+        ~Snake() override;
+
         void update(float deltaTime) override;
-        void keyPressed(int key) override;
-        void keyReleased(int key) override;
-        void onGameClosed() override;
+        void keyPressed(Core::Key key) override;
+        void keyReleased(Core::Key key) override;
 
     private:
-        void init(bool renderBackground);
-        void pushSnakeTile(Vector2D newSnakeTileVector);
-        void setFoodTile(Vector2D foodTilePosition);
-        void resetTileColor(Vector2D tilePosition);
+        // Init
+        void init(bool doRenderBackground);
+        void renderBackground();
+        void renderUI();
+        void spawnSnake();
+        void resetTiles();
+
+        // General
         void moveSnake();
-        void setStatus(Vector2D tilePosition, int status);
+        void onGameClosed();
         void generateFood();
         void playerGameOver();
         void updateScore();
-        void renderSprite(Vector2D tilePosition, Vector2D sprite);
-        void pullSnakeTail();
         void updateHighscore();
+
+        // Tiles
+        void pushSnakeTile(Vector2D newSnakeTileVector);
+        void pullSnakeTail();
+        void resetTileColor(Vector2D tilePosition);
+        void renderSprite(Vector2D tilePosition, Vector2D sprite);
+        void setFoodTile(Vector2D foodTilePosition);
+        void setStatus(Vector2D tilePosition, Status Status);
 };
 
 #endif // SNAKE_HPP

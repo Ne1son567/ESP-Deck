@@ -21,8 +21,17 @@ class LightsOut : public Game
         int minCount;
         int maxCount;
         String difficultyText;
-    
         std::vector<std::vector<bool>> lights;
+
+    public:
+        LightsOut(int difficulty);
+        ~LightsOut();
+
+        void keyPressed(Core::Key key) override;
+        void keyReleased(Core::Key key) override;
+        void update(float deltaTime) override;
+
+    private:
         void createGame();
         void moveCursor(int xIndex, int yIndex);
         void invertOne(int xIndex, int yIndex, TFT_eSPI& display);
@@ -31,13 +40,6 @@ class LightsOut : public Game
         void showSolved();
         void hideSolved();
         void updateMoves();
-    public:
-        LightsOut(int difficulty);
-        void keyPressed(int key) override;
-        void keyReleased(int key) override;
-        void update(float deltaTime) override;
-        void onGameClosed() override;
-        
 };
 
 

@@ -1,8 +1,8 @@
 #include "game/knight-game/KnightGame.hpp"
 
 #include <game/knight-game/entity/Slime.hpp>
-
-std::shared_ptr<KnightGame> KnightGame::instance = nullptr;
+#include <iostream>
+#include <core/Core.hpp>
 
 KnightGame::KnightGame() 
 {
@@ -22,15 +22,6 @@ KnightGame::KnightGame()
     terrains.push_back(Terrain(std::make_shared<Vector2D>(170, 140), 40, 20, 0, TFT_WHITE));
     terrains.push_back(Terrain(std::make_shared<Vector2D>(-500, 0), 40, 300, 0, TFT_WHITE));
     terrains.push_back(Terrain(std::make_shared<Vector2D>(760, 0), 40, 300, 0, TFT_WHITE));
-}
-
-std::shared_ptr<KnightGame> KnightGame::getInstance() 
-{
-    if (instance == nullptr) {
-        instance = std::shared_ptr<KnightGame>(new KnightGame());
-    }
-
-    return instance;
 }
 
 void KnightGame::update(float deltaTime) 
@@ -53,22 +44,22 @@ void KnightGame::update(float deltaTime)
     }
 }
 
-void KnightGame::keyPressed(int key)
+void KnightGame::keyPressed(Core::Key key)
 {
     std::shared_ptr<Knight> knight = getKnight();
     Vector2D& velocity = knight->getVelocity();
 
     switch (key) {
-        case 0:
+        case Core::Key::RIGHT:
             knight->startRunning(Knight::Direction::RIGHT);
             break;
-        case 1:
+        case Core::Key::UP:
             knight->jump();
             break;
-        case 2:
+        case Core::Key::LEFT:
             knight->startRunning(Knight::Direction::LEFT);
             break;
-        case 4:
+        case Core::Key::ACTION:
             knight->attack();
     }
 }
@@ -79,16 +70,16 @@ void KnightGame::setKnight(std::shared_ptr<Knight> knight)
     addCombatEntity(knight);
 }
 
-void KnightGame::keyReleased(int key)
+void KnightGame::keyReleased(Core::Key key)
 {
     std::shared_ptr<Knight> knight = getKnight();
     Vector2D& velocity = knight->getVelocity();
 
     switch (key) {
-        case 0:
+        case Core::Key::RIGHT:
             knight->stopRunning(Knight::Direction::RIGHT);
             break;
-        case 2:
+        case Core::Key::LEFT:
             knight->stopRunning(Knight::Direction::LEFT);
             break;
     }
@@ -197,11 +188,6 @@ float KnightGame::calculateTerrainCollision(Rectangle& rectangle, Rectangle::Col
     }
 
     return 0;
-}
-
-void KnightGame::onGameClosed() 
-{
-    instance.reset();
 }
 
 std::shared_ptr<Knight> KnightGame::getKnight() 

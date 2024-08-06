@@ -4,101 +4,136 @@
 #include "game/Game.hpp"
 #include "game/menu/Menu.hpp"
 #include "game/snake/Snake.hpp"
-#include "game/GameFactory.hpp"
+#include "game/knight-game/KnightGameController.hpp"
 #include "display/DisplayManager.hpp"
 #include "TFT_eSPI.h"
 #include <EEPROM.h>
-
-#define RIGHT_PIN 9
-#define UP_PIN 10
-#define LEFT_PIN 11
-#define DOWN_PIN 12
-#define ACTION_PIN 13
-#define MENU_PIN 46
-int keyPins[] = {RIGHT_PIN, UP_PIN, LEFT_PIN, DOWN_PIN, ACTION_PIN};
-
-TaskHandle_t core0TaskHandle;
-std::unique_ptr<Game> currentGame;
-bool menuButtonPressed = true;
-unsigned long previousMillis = 0;
+#include <iostream>
+#include <eeprom/EepromManager.hpp>
 
 void setup() 
 {
-    Serial.begin(250000);
-    EEPROM.begin(512);
-
-    xTaskCreatePinnedToCore(
-        inputLoop,
-        "Input",
-        10000,
-        NULL,
-        1,
-        &core0TaskHandle,
-        0
-    );
-
-    pinMode(RIGHT_PIN, INPUT_PULLUP);
-    pinMode(UP_PIN, INPUT_PULLUP);
-    pinMode(LEFT_PIN, INPUT_PULLUP);
-    pinMode(DOWN_PIN, INPUT_PULLUP);
-    pinMode(ACTION_PIN, INPUT_PULLUP);
-    pinMode(MENU_PIN, INPUT_PULLUP);
-
-    randomSeed(analogRead(0));
-
-    DisplayManager::initialize();
+    Core::init();
 }
 
-void loop()
+void loop() 
 {
-    if (menuButtonPressed) {
-        if (currentGame != nullptr) {
-            currentGame->onGameClosed();
+    Core::run();
+}
+
+namespace Core 
+{
+    TaskHandle_t core0TaskHandle;
+    std::unique_ptr<Game> currentGame;
+    bool menuButtonPressed;
+    unsigned long previousMillis;
+    
+    const int RIGHT_PIN = 10;
+    const int UP_PIN = 11;
+    const int LEFT_PIN = 13;
+    const int DOWN_PIN = 12;
+    const int ACTION_PIN = 46;
+    const int MENU_PIN = 9;
+
+    int keyPins[] = {RIGHT_PIN, UP_PIN, LEFT_PIN, DOWN_PIN, ACTION_PIN};
+
+    void init() 
+    {
+        // Serial.begin();
+        // std::cout << "Starting..." << std::endl;
+
+        EEPROM.begin(EepromManager::EEPROM_SIZE);
+
+        menuButtonPressed = true;
+        previousMillis = 0;
+        
+        xTaskCreatePinnedToCore(
+            inputLoop,
+            "Input",
+            10000,
+            NULL,
+            1,
+            &core0TaskHandle,
+            0
+        );
+
+        pinMode(RIGHT_PIN, INPUT_PULLUP);
+        pinMode(UP_PIN, INPUT_PULLUP);
+        pinMode(LEFT_PIN, INPUT_PULLUP);
+        pinMode(DOWN_PIN, INPUT_PULLUP);
+        pinMode(ACTION_PIN, INPUT_PULLUP);
+        pinMode(MENU_PIN, INPUT_PULLUP);
+
+        randomSeed(analogRead(0));
+
+        DisplayManager::initialize();
+
+        if (EepromManager::readInt8(EepromManager::EEPROM_STATUS_ADDR_INT8) != 1) {
+            // std::cout << "Configurating EEPROM..." << std::endl;
+            for (int i = 0; i < EepromManager::EEPROM_SIZE - 1; i++) {
+                EepromManager::writeInt8(i, 0);
+            }
+            EepromManager::writeInt8(EepromManager::EEPROM_STATUS_ADDR_INT8, 1);
         }
-        currentGame.reset(new Menu());
-        menuButtonPressed = false;
+        // std::cout << "Setup Complete!" << std::endl;
     }
 
-    unsigned long currentMillis = millis();
-    unsigned long deltaTime = currentMillis - previousMillis;
+    void run()
+    {
+        if (menuButtonPressed) {
+            if (!currentGame || currentGame->getGameType() != Game::GameType::MENU)
+                currentGame.reset(new Menu());
+            menuButtonPressed = false;
+        }
 
-    currentGame->update(deltaTime);
+        unsigned long currentMillis = millis();
+        unsigned long deltaTime = currentMillis - previousMillis;
 
-    previousMillis = currentMillis;
-}
+        currentGame->update(deltaTime);
 
-void setCurrentGame(std::unique_ptr<Game> newGame) 
-{
-    currentGame = std::move(newGame);
-}
+        previousMillis = currentMillis;
+    }
 
-void inputLoop(void * parameter)
-{
-    bool menuButtonSpamProt = true;
-    bool keyStates[5] = {false};
+    void setCurrentGame(std::unique_ptr<Game> newGame) 
+    {
+        currentGame = std::move(newGame);
+    }
 
-    for (;;) {
-        if (!menuButtonPressed) {
-            if (digitalRead(MENU_PIN) == LOW && menuButtonSpamProt) {
-                menuButtonPressed = true;
-                menuButtonSpamProt = false;
-            } else if (digitalRead(MENU_PIN) == HIGH) {
-                menuButtonSpamProt = true;
-            }
-            
-            for (int key = 0; key < 5; ++key) {
-                int pin = keyPins[key];
-                bool &keyState = keyStates[key];
+    void inputLoop(void * parameter)
+    {
+        bool menuButtonSpamProt = true;
+        bool keyStates[5] = {false};
+        Key keys[] {
+            Key::RIGHT,
+            Key::UP,
+            Key::LEFT,
+            Key::DOWN,
+            Key::ACTION
+        };
+
+        for (;;) {
+            if (!menuButtonPressed) {
+                if (digitalRead(MENU_PIN) == LOW && menuButtonSpamProt) {
+                    menuButtonPressed = true;
+                    menuButtonSpamProt = false;
+                } else if (digitalRead(MENU_PIN) == HIGH) {
+                    menuButtonSpamProt = true;
+                }
                 
-                if (digitalRead(pin) == LOW && !keyState) {
-                    currentGame->keyPressed(key);
-                    keyState = true;
-                } else if (digitalRead(pin) == HIGH && keyState) {
-                    currentGame->keyReleased(key);
-                    keyState = false;
+                for (int keyIndex = 0; keyIndex < 5; ++keyIndex) {
+                    int pin = keyPins[keyIndex];
+                    bool &keyState = keyStates[keyIndex];
+                    
+                    if (digitalRead(pin) == LOW && !keyState) {
+                        currentGame->keyPressed(keys[keyIndex]);
+                        keyState = true;
+                    } else if (digitalRead(pin) == HIGH && keyState) {
+                        currentGame->keyReleased(keys[keyIndex]);
+                        keyState = false;
+                    }
                 }
             }
+            delay(50);
         }
-        delay(50);
     }
 }

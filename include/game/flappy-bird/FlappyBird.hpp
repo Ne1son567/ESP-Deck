@@ -2,13 +2,14 @@
 #define FlappyBird_HPP
 
 #include "game/Game.hpp"
-#include "game/FlappyBird/Pillar.hpp"
-#include "game/FlappyBird/Bird.hpp"
+#include "game/flappy-bird/Pillar.hpp"
+#include "game/flappy-bird/Bird.hpp"
 #include <Arduino.h>
 #include <random>
 #include <list>
 #include <String>
 #include <eeprom/EepromManager.hpp>
+#include <core/Core.hpp>
 
 class FlappyBird : public Game
 {
@@ -31,6 +32,8 @@ class FlappyBird : public Game
         int spawnSpeed;
         int TapMessageYPos;
         int TapMessageXPos;
+        bool upbutton;
+        bool jumpRequest = false;
         String difficultyText;
         void updatePillars();
         void createPillar();
@@ -48,13 +51,14 @@ class FlappyBird : public Game
             EepromManager::EEPROM_FLAPPYBIRD_HARD_HIGHSCORE_ADDR_INT16 //6 01.06.2024
         };
         void updateHighscore();
+        void onGameClosed();
     public:
         FlappyBird(int difficulty);
-        void keyPressed(int key) override;
-        void keyReleased(int key) override;
+        ~FlappyBird() override;
+
+        void keyPressed(Core::Key key) override;
+        void keyReleased(Core::Key key) override;
         void update(float deltaTime) override;
-        void onGameClosed() override;
-        
 };
 
 
